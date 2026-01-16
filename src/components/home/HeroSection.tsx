@@ -37,9 +37,9 @@ const HeroSection = () => {
                   <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
-              <Link to="/registro">
+              <Link to="/auth">
                 <Button variant="outline" size="xl" className="w-full sm:w-auto">
-                  Soy productor
+                  Soy agricultor / ganadero
                 </Button>
               </Link>
             </div>
@@ -59,7 +59,7 @@ const HeroSection = () => {
                   </div>
                   <div>
                     <p className="font-semibold text-foreground">+120</p>
-                    <p className="text-sm text-muted-foreground">Productores</p>
+                    <p className="text-sm text-muted-foreground">Agricultores</p>
                   </div>
                 </div>
               </div>
