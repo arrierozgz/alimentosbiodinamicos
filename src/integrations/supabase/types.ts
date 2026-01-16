@@ -14,8 +14,133 @@ export type Database = {
   }
   public: {
     Tables: {
+      biodynamic_preparations: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          preparation: Database["public"]["Enums"]["preparation_type"]
+          price: number | null
+          unit: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          preparation: Database["public"]["Enums"]["preparation_type"]
+          price?: number | null
+          unit?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          preparation?: Database["public"]["Enums"]["preparation_type"]
+          price?: number | null
+          unit?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      farmer_profiles: {
+        Row: {
+          activity_types: Database["public"]["Enums"]["app_role"][]
+          approximate_location: string | null
+          contact_email: string | null
+          contact_phone: string | null
+          contact_web: string | null
+          created_at: string
+          farm_name: string
+          id: string
+          postal_code: string | null
+          preferred_language: string | null
+          presentation: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activity_types?: Database["public"]["Enums"]["app_role"][]
+          approximate_location?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          contact_web?: string | null
+          created_at?: string
+          farm_name: string
+          id?: string
+          postal_code?: string | null
+          preferred_language?: string | null
+          presentation?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activity_types?: Database["public"]["Enums"]["app_role"][]
+          approximate_location?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          contact_web?: string | null
+          created_at?: string
+          farm_name?: string
+          id?: string
+          postal_code?: string | null
+          preferred_language?: string | null
+          presentation?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      product_variations: {
+        Row: {
+          created_at: string
+          id: string
+          net_price: number | null
+          packaging: string | null
+          product_id: string
+          unit: Database["public"]["Enums"]["product_unit"] | null
+          updated_at: string
+          variety: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          net_price?: number | null
+          packaging?: string | null
+          product_id: string
+          unit?: Database["public"]["Enums"]["product_unit"] | null
+          updated_at?: string
+          variety?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          net_price?: number | null
+          packaging?: string | null
+          product_id?: string
+          unit?: Database["public"]["Enums"]["product_unit"] | null
+          updated_at?: string
+          variety?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_variations_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
+          certifications:
+            | Database["public"]["Enums"]["certification_type"][]
+            | null
           created_at: string
           id: string
           is_active: boolean
@@ -27,6 +152,9 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          certifications?:
+            | Database["public"]["Enums"]["certification_type"][]
+            | null
           created_at?: string
           id?: string
           is_active?: boolean
@@ -38,6 +166,9 @@ export type Database = {
           user_id: string
         }
         Update: {
+          certifications?:
+            | Database["public"]["Enums"]["certification_type"][]
+            | null
           created_at?: string
           id?: string
           is_active?: boolean
@@ -50,15 +181,80 @@ export type Database = {
         }
         Relationships: []
       }
+      user_preferences: {
+        Row: {
+          created_at: string
+          id: string
+          last_unit_used: Database["public"]["Enums"]["product_unit"] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_unit_used?: Database["public"]["Enums"]["product_unit"] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_unit_used?: Database["public"]["Enums"]["product_unit"] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      owns_product: { Args: { _product_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "consumidor" | "agricultor" | "ganadero" | "elaborador"
+      certification_type: "conciencia" | "ecologica" | "demeter"
+      preparation_type:
+        | "500"
+        | "501"
+        | "502"
+        | "503"
+        | "504"
+        | "505"
+        | "506"
+        | "507"
+        | "508"
+        | "maria_thun"
+      product_unit: "g" | "kg" | "unidad" | "litro" | "docena"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -185,6 +381,22 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["consumidor", "agricultor", "ganadero", "elaborador"],
+      certification_type: ["conciencia", "ecologica", "demeter"],
+      preparation_type: [
+        "500",
+        "501",
+        "502",
+        "503",
+        "504",
+        "505",
+        "506",
+        "507",
+        "508",
+        "maria_thun",
+      ],
+      product_unit: ["g", "kg", "unidad", "litro", "docena"],
+    },
   },
 } as const
