@@ -62,12 +62,8 @@ export default function RoleSelection() {
       setActiveRole(selectedRoles[0]);
       toast.success('¡Bienvenido a la comunidad!');
       
-      // Navigate based on role
-      if (selectedRoles.includes('agricultor') || selectedRoles.includes('ganadero' as AppRole)) {
-        navigate('/agricultor');
-      } else {
-        navigate('/');
-      }
+      // Always navigate to home - user chooses where to go from there
+      navigate('/');
     } catch (error) {
       toast.error('Error al guardar los roles');
       console.error(error);
