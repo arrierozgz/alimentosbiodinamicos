@@ -6,10 +6,10 @@ const roles = [
   {
     icon: ShoppingBasket,
     title: "Consumidor",
-    description: "Encuentra alimentos biodinámicos cerca de ti. Conecta directamente con productores locales y apoya la agricultura consciente.",
+    description: "Encuentra alimentos biodinámicos cerca de ti. Conecta directamente con agricultores locales y apoya la agricultura consciente.",
     features: ["Busca por producto o ubicación", "Guarda tus favoritos", "Contacta directamente"],
     color: "primary" as const,
-    link: "/registro?rol=consumidor",
+    link: "/auth",
   },
   {
     icon: Tractor,
@@ -17,7 +17,7 @@ const roles = [
     description: "Comparte tu trabajo con consumidores que valoran la agricultura biodinámica. Sin comisiones, trato directo.",
     features: ["Publica tus productos", "Gestiona variedades y precios", "Recibe pedidos por email"],
     color: "accent" as const,
-    link: "/registro?rol=agricultor",
+    link: "/auth",
   },
   {
     icon: Beaker,
@@ -25,7 +25,7 @@ const roles = [
     description: "Ofrece preparados biodinámicos (500-508, María Thun) a agricultores que buscan practicar la biodinámica.",
     features: ["Catálogo de preparados", "Precios y unidades flexibles", "Contacto directo"],
     color: "leaf" as const,
-    link: "/registro?rol=elaborador",
+    link: "/auth",
   },
 ];
 
