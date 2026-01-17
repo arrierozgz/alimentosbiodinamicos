@@ -7,6 +7,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { UserRolesProvider } from "@/hooks/useUserRoles";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import AuthCallback from "./pages/AuthCallback";
 import RoleSelection from "./pages/RoleSelection";
 import Agricultor from "./pages/Agricultor";
 import NotFound from "./pages/NotFound";
@@ -24,6 +25,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/seleccionar-rol" element={<RoleSelection />} />
               <Route path="/agricultor" element={<Agricultor />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
