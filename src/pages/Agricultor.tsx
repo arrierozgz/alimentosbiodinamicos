@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { ProductCard } from '@/components/agricultor/ProductCard';
 import { ProductForm } from '@/components/agricultor/ProductForm';
+import { ExportDataButton } from '@/components/ExportDataButton';
 import { Plus, Leaf, LogOut, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -157,9 +158,12 @@ export default function Agricultor() {
               <p className="text-xs text-muted-foreground">Gestiona tus productos</p>
             </div>
           </div>
-          <Button variant="ghost" size="icon" onClick={handleSignOut}>
-            <LogOut className="w-5 h-5" />
-          </Button>
+          <div className="flex items-center gap-2">
+            <ExportDataButton variant="compact" />
+            <Button variant="ghost" size="icon" onClick={handleSignOut}>
+              <LogOut className="w-5 h-5" />
+            </Button>
+          </div>
         </div>
       </header>
 
