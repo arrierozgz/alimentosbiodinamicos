@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Leaf, User, Search, Heart, ChevronDown, LogOut } from "lucide-react";
+import { Menu, X, Leaf, User, Search, Heart, ChevronDown, LogOut, Download } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRoles } from "@/hooks/useUserRoles";
+import { useDataExport } from "@/hooks/useDataExport";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,11 +25,14 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
   const { roles, activeRole, setActiveRole } = useUserRoles();
+  const { exporting, exportData, exportProductsCSV } = useDataExport();
 
   const handleSignOut = async () => {
     await signOut();
     setIsMenuOpen(false);
   };
+
+  const showProductExport = activeRole === 'agricultor' || activeRole === 'ganadero' || activeRole === 'elaborador';
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
@@ -114,6 +118,18 @@ const Header = () => {
                 {activeRole === 'elaborador' && (
                   <DropdownMenuItem asChild>
                     <Link to="/elaborador">Mis preparados</Link>
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel>Exportar datos</DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => exportData()} disabled={exporting}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Todo (JSON)
+                </DropdownMenuItem>
+                {showProductExport && (
+                  <DropdownMenuItem onClick={exportProductsCSV} disabled={exporting}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Productos (CSV)
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />
@@ -222,6 +238,29 @@ const Header = () => {
                     </Button>
                   </Link>
                 )}
+                <div className="border-t border-border my-2" />
+                <p className="px-3 py-1 text-sm text-muted-foreground">Exportar datos</p>
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start gap-2"
+                  onClick={() => { exportData(); setIsMenuOpen(false); }}
+                  disabled={exporting}
+                >
+                  <Download className="h-4 w-4" />
+                  Todo (JSON)
+                </Button>
+                {showProductExport && (
+                  <Button 
+                    variant="ghost" 
+                    className="w-full justify-start gap-2"
+                    onClick={() => { exportProductsCSV(); setIsMenuOpen(false); }}
+                    disabled={exporting}
+                  >
+                    <Download className="h-4 w-4" />
+                    Productos (CSV)
+                  </Button>
+                )}
+                <div className="border-t border-border my-2" />
                 <Button 
                   variant="ghost" 
                   className="w-full justify-start text-destructive"
