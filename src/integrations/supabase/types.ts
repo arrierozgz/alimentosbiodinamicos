@@ -47,12 +47,37 @@ export type Database = {
         }
         Relationships: []
       }
+      farmer_contact_details: {
+        Row: {
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       farmer_profiles: {
         Row: {
           activity_types: Database["public"]["Enums"]["app_role"][]
           approximate_location: string | null
-          contact_email: string | null
-          contact_phone: string | null
           contact_web: string | null
           created_at: string
           farm_name: string
@@ -66,8 +91,6 @@ export type Database = {
         Insert: {
           activity_types?: Database["public"]["Enums"]["app_role"][]
           approximate_location?: string | null
-          contact_email?: string | null
-          contact_phone?: string | null
           contact_web?: string | null
           created_at?: string
           farm_name: string
@@ -81,8 +104,6 @@ export type Database = {
         Update: {
           activity_types?: Database["public"]["Enums"]["app_role"][]
           approximate_location?: string | null
-          contact_email?: string | null
-          contact_phone?: string | null
           contact_web?: string | null
           created_at?: string
           farm_name?: string
