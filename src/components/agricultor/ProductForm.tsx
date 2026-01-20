@@ -4,7 +4,87 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Leaf, Save, X } from 'lucide-react';
+import { Leaf, Save, X, AlertCircle } from 'lucide-react';
+
+// Lista blanca de dominios de imagen seguros
+const ALLOWED_IMAGE_DOMAINS = [
+  'images.unsplash.com',
+  'unsplash.com',
+  'i.imgur.com',
+  'imgur.com',
+  'cloudinary.com',
+  'res.cloudinary.com',
+  'storage.googleapis.com',
+  'firebasestorage.googleapis.com',
+  'tbwsgyyaxvrbgggwmmka.supabase.co', // Supabase Storage del proyecto
+];
+
+// Extensiones de imagen válidas
+const VALID_IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.avif'];
+
+// Función para validar y sanitizar URL de imagen
+const validateImageUrl = (url: string): { isValid: boolean; error?: string; sanitizedUrl?: string } => {
+  if (!url || url.trim() === '') {
+    return { isValid: true, sanitizedUrl: '' }; // Vacío es válido (opcional)
+  }
+
+  const trimmedUrl = url.trim();
+  
+  // Validar longitud máxima
+  if (trimmedUrl.length > 2048) {
+    return { isValid: false, error: 'La URL es demasiado larga (máximo 2048 caracteres)' };
+  }
+
+  // Validar formato URL
+  let parsedUrl: URL;
+  try {
+    parsedUrl = new URL(trimmedUrl);
+  } catch {
+    return { isValid: false, error: 'Formato de URL inválido' };
+  }
+
+  // Solo permitir HTTPS (más seguro)
+  if (parsedUrl.protocol !== 'https:') {
+    return { isValid: false, error: 'Solo se permiten URLs seguras (HTTPS)' };
+  }
+
+  // Verificar que el dominio esté en la lista blanca
+  const hostname = parsedUrl.hostname.toLowerCase();
+  const isAllowedDomain = ALLOWED_IMAGE_DOMAINS.some(domain => 
+    hostname === domain || hostname.endsWith('.' + domain)
+  );
+
+  if (!isAllowedDomain) {
+    return { 
+      isValid: false, 
+      error: 'Dominio no permitido. Usa Unsplash, Imgur, Cloudinary o Supabase Storage' 
+    };
+  }
+
+  // Verificar extensión de imagen (si tiene)
+  const pathname = parsedUrl.pathname.toLowerCase();
+  const hasValidExtension = VALID_IMAGE_EXTENSIONS.some(ext => pathname.endsWith(ext));
+  const hasNoExtension = !pathname.includes('.') || pathname.endsWith('/');
+  
+  // Permitir URLs sin extensión (algunas CDNs usan query params) o con extensión válida
+  if (!hasValidExtension && !hasNoExtension) {
+    const extension = pathname.substring(pathname.lastIndexOf('.'));
+    if (!VALID_IMAGE_EXTENSIONS.includes(extension)) {
+      return { 
+        isValid: false, 
+        error: 'El archivo no parece ser una imagen válida (jpg, png, gif, webp, svg)' 
+      };
+    }
+  }
+
+  // Sanitizar: eliminar caracteres potencialmente peligrosos
+  const sanitizedUrl = trimmedUrl
+    .replace(/[<>'"]/g, '') // Eliminar caracteres HTML/JS peligrosos
+    .replace(/javascript:/gi, '') // Prevenir XSS
+    .replace(/data:/gi, ''); // Prevenir data URIs
+
+  return { isValid: true, sanitizedUrl };
+};
 
 interface ProductFormData {
   name: string;
@@ -52,10 +132,34 @@ export function ProductForm({ open, onClose, onSave, initialData, loading }: Pro
     product_type: initialData?.product_type || '',
     photo_url: initialData?.photo_url || '',
   });
+  const [urlError, setUrlError] = useState<string | null>(null);
+
+  const handlePhotoUrlChange = (url: string) => {
+    setFormData({ ...formData, photo_url: url });
+    
+    // Validar URL en tiempo real
+    if (url.trim()) {
+      const validation = validateImageUrl(url);
+      setUrlError(validation.error || null);
+    } else {
+      setUrlError(null);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+    
+    // Validar y sanitizar URL antes de enviar
+    const validation = validateImageUrl(formData.photo_url);
+    if (!validation.isValid) {
+      setUrlError(validation.error || 'URL inválida');
+      return;
+    }
+    
+    onSave({
+      ...formData,
+      photo_url: validation.sanitizedUrl || ''
+    });
   };
 
   const isEditing = !!initialData?.id;
@@ -134,10 +238,19 @@ export function ProductForm({ open, onClose, onSave, initialData, loading }: Pro
               id="photo_url"
               type="url"
               value={formData.photo_url}
-              onChange={(e) => setFormData({ ...formData, photo_url: e.target.value })}
-              placeholder="https://..."
-              className="h-12 text-base"
+              onChange={(e) => handlePhotoUrlChange(e.target.value)}
+              placeholder="https://images.unsplash.com/..."
+              className={`h-12 text-base ${urlError ? 'border-destructive focus-visible:ring-destructive' : ''}`}
             />
+            {urlError && (
+              <div className="flex items-center gap-2 text-sm text-destructive">
+                <AlertCircle className="w-4 h-4" />
+                <span>{urlError}</span>
+              </div>
+            )}
+            <p className="text-xs text-muted-foreground">
+              Dominios permitidos: Unsplash, Imgur, Cloudinary, Supabase Storage
+            </p>
           </div>
 
           <div className="flex gap-3 pt-4">
@@ -154,7 +267,7 @@ export function ProductForm({ open, onClose, onSave, initialData, loading }: Pro
               type="submit"
               variant="earth"
               className="flex-1 h-12 text-base"
-              disabled={loading || !formData.name.trim()}
+              disabled={loading || !formData.name.trim() || !!urlError}
             >
               {loading ? (
                 <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
