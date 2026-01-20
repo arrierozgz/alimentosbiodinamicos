@@ -228,7 +228,48 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      farmer_profiles_public: {
+        Row: {
+          activity_types: Database["public"]["Enums"]["app_role"][] | null
+          approximate_location: string | null
+          contact_web: string | null
+          created_at: string | null
+          farm_name: string | null
+          id: string | null
+          postal_code: string | null
+          preferred_language: string | null
+          presentation: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          activity_types?: Database["public"]["Enums"]["app_role"][] | null
+          approximate_location?: string | null
+          contact_web?: string | null
+          created_at?: string | null
+          farm_name?: string | null
+          id?: string | null
+          postal_code?: string | null
+          preferred_language?: string | null
+          presentation?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          activity_types?: Database["public"]["Enums"]["app_role"][] | null
+          approximate_location?: string | null
+          contact_web?: string | null
+          created_at?: string | null
+          farm_name?: string | null
+          id?: string | null
+          postal_code?: string | null
+          preferred_language?: string | null
+          presentation?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {
