@@ -82,6 +82,7 @@ export type Database = {
           created_at: string
           farm_name: string
           id: string
+          is_public: boolean
           postal_code: string | null
           preferred_language: string | null
           presentation: string | null
@@ -95,6 +96,7 @@ export type Database = {
           created_at?: string
           farm_name: string
           id?: string
+          is_public?: boolean
           postal_code?: string | null
           preferred_language?: string | null
           presentation?: string | null
@@ -108,6 +110,7 @@ export type Database = {
           created_at?: string
           farm_name?: string
           id?: string
+          is_public?: boolean
           postal_code?: string | null
           preferred_language?: string | null
           presentation?: string | null
