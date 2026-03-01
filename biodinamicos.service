@@ -1,0 +1,15 @@
+[Unit]
+Description=Alimentos Biodinámicos Web App
+After=network.target
+
+[Service]
+Type=simple
+User=lola
+WorkingDirectory=/home/lola/.openclaw/workspace/alimentosbiodinamicos
+ExecStart=/home/lola/.npm-global/bin/serve dist -l 3080 -s
+Restart=always
+RestartSec=5
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target

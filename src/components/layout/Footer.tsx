@@ -68,7 +68,7 @@ const Footer = () => {
             <ul className="space-y-3">
               <li>
                 <a 
-                  href="mailto:info@alimentosbiodinamicos.org" 
+                  href="mailto:aragonbiodinamica@gmail.com" 
                   className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"
                 >
                   <Mail className="h-4 w-4" />
