@@ -10,6 +10,11 @@ import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
 import RoleSelection from "./pages/RoleSelection";
 import Agricultor from "./pages/Agricultor";
+import Explorar from "./pages/Explorar";
+import Preparados from "./pages/Preparados";
+import SobreNosotros from "./pages/SobreNosotros";
+import MiPerfil from "./pages/MiPerfil";
+import Elaborador from "./pages/Elaborador";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +33,11 @@ const App = () => (
               <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/seleccionar-rol" element={<RoleSelection />} />
               <Route path="/agricultor" element={<Agricultor />} />
+              <Route path="/explorar" element={<Explorar />} />
+              <Route path="/preparados" element={<Preparados />} />
+              <Route path="/sobre-nosotros" element={<SobreNosotros />} />
+              <Route path="/mi-perfil" element={<MiPerfil />} />
+              <Route path="/elaborador" element={<Elaborador />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
