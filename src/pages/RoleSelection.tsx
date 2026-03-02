@@ -62,8 +62,17 @@ export default function RoleSelection() {
       setActiveRole(selectedRoles[0]);
       toast.success('¡Bienvenido a la comunidad!');
       
-      // Always navigate to home - user chooses where to go from there
-      navigate('/');
+      // Navigate based on primary role
+      const primaryRole = selectedRoles[0];
+      if (primaryRole === 'consumidor') {
+        navigate('/explorar');
+      } else if (primaryRole === 'agricultor') {
+        navigate('/agricultor');
+      } else if (primaryRole === 'elaborador') {
+        navigate('/elaborador');
+      } else {
+        navigate('/');
+      }
     } catch (error) {
       toast.error('Error al guardar los roles');
       console.error(error);
