@@ -15,6 +15,7 @@ import Preparados from "./pages/Preparados";
 import SobreNosotros from "./pages/SobreNosotros";
 import MiPerfil from "./pages/MiPerfil";
 import Elaborador from "./pages/Elaborador";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +32,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/seleccionar-rol" element={<RoleSelection />} />
               <Route path="/agricultor" element={<Agricultor />} />
               <Route path="/explorar" element={<Explorar />} />

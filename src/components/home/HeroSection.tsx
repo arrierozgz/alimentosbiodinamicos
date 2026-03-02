@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Users, Leaf, MapPin } from "lucide-react";
+import { ArrowRight, Users, Leaf, MapPin, User } from "lucide-react";
 
 const HeroSection = () => {
   return (
@@ -31,15 +31,16 @@ const HeroSection = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-fade-up" style={{ animationDelay: "0.3s" }}>
-              <Link to="/explorar">
-                <Button variant="earth" size="xl" className="w-full sm:w-auto group">
-                  Explorar productos
-                  <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+              <Link to="/auth">
+                <Button variant="earth" size="xl" className="w-full sm:w-auto group text-lg h-16">
+                  <User className="h-5 w-5" />
+                  Acceder / Registrarse
                 </Button>
               </Link>
-              <Link to="/auth">
-                <Button variant="outline" size="xl" className="w-full sm:w-auto">
-                  Soy agricultor / ganadero
+              <Link to="/explorar">
+                <Button variant="outline" size="xl" className="w-full sm:w-auto group text-lg h-16">
+                  Explorar productos
+                  <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
             </div>
