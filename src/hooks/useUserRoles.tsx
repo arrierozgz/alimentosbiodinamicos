@@ -1,9 +1,8 @@
 import { useState, useEffect, createContext, useContext, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
-import type { Database } from '@/integrations/supabase/types';
 
-type AppRole = Database['public']['Enums']['app_role'];
+type AppRole = 'consumidor' | 'agricultor' | 'ganadero' | 'elaborador';
 
 interface UserRolesContextType {
   roles: AppRole[];
