@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { ProductCard } from '@/components/agricultor/ProductCard';
-import { ProductForm } from '@/components/agricultor/ProductForm';
-import { ExportDataButton } from '@/components/ExportDataButton';
-import { Plus, Leaf, LogOut, Loader2 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card } from '@/components/ui/card';
+import { ProductForm, type ProductFormData } from '@/components/agricultor/ProductForm';
+import { Plus, Leaf, LogOut, Loader2, MapPin, Phone, Mail, Globe, Edit, Trash2, Eye, EyeOff, Save } from 'lucide-react';
 import { toast } from 'sonner';
+import { PRODUCT_CATEGORY_EMOJIS, CERTIFICATION_TYPES } from '@/lib/catalogo';
 
 interface Product {
   id: string;
@@ -16,6 +18,23 @@ interface Product {
   season: string | null;
   is_active: boolean;
   product_type: string | null;
+  certifications: string[];
+  variations?: { id: string; variety: string | null; packaging: string | null; net_price: number | null; unit: string | null }[];
+}
+
+interface FarmerProfile {
+  id?: string;
+  farm_name: string;
+  approximate_location: string;
+  province: string;
+  postal_code: string;
+  contact_web: string;
+  presentation: string;
+}
+
+interface ContactDetails {
+  contact_email: string;
+  contact_phone: string;
 }
 
 export default function Agricultor() {
@@ -24,125 +43,223 @@ export default function Agricultor() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [formOpen, setFormOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [editingProduct, setEditingProduct] = useState<any>(null);
   const [saving, setSaving] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
+  const [savingProfile, setSavingProfile] = useState(false);
+
+  const [profile, setProfile] = useState<FarmerProfile>({
+    farm_name: '', approximate_location: '', province: '', postal_code: '', contact_web: '', presentation: '',
+  });
+  const [contact, setContact] = useState<ContactDetails>({ contact_email: '', contact_phone: '' });
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      navigate('/auth');
-    }
+    if (!authLoading && !user) navigate('/auth');
   }, [user, authLoading, navigate]);
 
   useEffect(() => {
     if (user) {
-      fetchProducts();
+      fetchAll();
     }
   }, [user]);
 
-  const fetchProducts = async () => {
+  const fetchAll = async () => {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('user_id', user?.id)
-        .order('created_at', { ascending: false });
+      // Products + variations
+      const { data: prods } = await supabase.from('products').select('*').eq('user_id', user?.id);
+      const productIds = (prods || []).map((p: any) => p.id);
 
-      if (error) throw error;
-      setProducts(data || []);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      toast.error('Error al cargar productos');
+      let variations: any[] = [];
+      if (productIds.length > 0) {
+        const { data: vars } = await supabase.from('product_variations').select('*');
+        variations = (vars || []).filter((v: any) => productIds.includes(v.product_id));
+      }
+
+      const enriched = (prods || []).map((p: any) => ({
+        ...p,
+        certifications: p.certifications || [],
+        variations: variations.filter((v: any) => v.product_id === p.id),
+      }));
+      setProducts(enriched);
+
+      // Profile
+      const { data: profiles } = await supabase.from('farmer_profiles' as any).select('*').eq('user_id', user?.id);
+      if (profiles && profiles.length > 0) {
+        const p = profiles[0] as any;
+        setProfile({
+          id: p.id,
+          farm_name: p.farm_name || '',
+          approximate_location: p.approximate_location || '',
+          province: p.province || '',
+          postal_code: p.postal_code || '',
+          contact_web: p.contact_web || '',
+          presentation: p.presentation || '',
+        });
+        // If no farm_name set, prompt to fill profile
+        if (!p.farm_name) setShowProfile(true);
+      } else {
+        setShowProfile(true); // New user, show profile form
+      }
+
+      // Contact
+      const { data: contacts } = await supabase.from('farmer_contact_details' as any).select('*').eq('user_id', user?.id);
+      if (contacts && contacts.length > 0) {
+        const c = contacts[0] as any;
+        setContact({ contact_email: c.contact_email || '', contact_phone: c.contact_phone || '' });
+      } else {
+        setContact({ contact_email: user?.email || '', contact_phone: '' });
+      }
+    } catch (e) {
+      console.error('Error:', e);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleToggleActive = async (id: string, isActive: boolean) => {
+  const handleSaveProfile = async () => {
+    if (!profile.farm_name.trim()) {
+      toast.error('El nombre es obligatorio');
+      return;
+    }
+    setSavingProfile(true);
     try {
-      const { error } = await supabase
-        .from('products')
-        .update({ is_active: isActive })
-        .eq('id', id);
+      // Upsert profile
+      const profileData = {
+        user_id: user?.id,
+        farm_name: profile.farm_name,
+        approximate_location: profile.approximate_location || null,
+        province: profile.province || null,
+        postal_code: profile.postal_code || null,
+        contact_web: profile.contact_web || null,
+        presentation: profile.presentation || null,
+        activity_types: ['agricultor'],
+        is_public: true,
+      };
 
-      if (error) throw error;
-      
-      setProducts(products.map(p => 
-        p.id === id ? { ...p, is_active: isActive } : p
-      ));
-      
-      toast.success(isActive ? 'Producto activado' : 'Producto en pausa');
-    } catch (error) {
-      console.error('Error updating product:', error);
-      toast.error('Error al actualizar');
+      if (profile.id) {
+        await supabase.from('farmer_profiles' as any).update(profileData).eq('id', profile.id);
+      } else {
+        const { data } = await supabase.from('farmer_profiles' as any).insert(profileData).select();
+        if (data && data.length > 0) setProfile(prev => ({ ...prev, id: (data[0] as any).id }));
+      }
+
+      // Upsert contact
+      await supabase.from('farmer_contact_details' as any).upsert({
+        user_id: user?.id,
+        contact_email: contact.contact_email || null,
+        contact_phone: contact.contact_phone || null,
+      }).select();
+
+      toast.success('Perfil guardado');
+      setShowProfile(false);
+    } catch (e) {
+      console.error('Error saving profile:', e);
+      toast.error('Error al guardar perfil');
+    } finally {
+      setSavingProfile(false);
     }
   };
 
-  const handleSaveProduct = async (data: { name: string; season: string; product_type: string; photo_url: string }) => {
+  const handleSaveProduct = async (data: ProductFormData) => {
     setSaving(true);
     try {
-      if (editingProduct) {
-        // Update existing product
-        const { error } = await supabase
-          .from('products')
-          .update({
-            name: data.name,
-            season: data.season || null,
-            product_type: data.product_type || null,
-            photo_url: data.photo_url || null,
-          })
-          .eq('id', editingProduct.id);
+      const productPayload = {
+        user_id: user?.id,
+        name: data.name,
+        product_type: data.product_type || null,
+        season: data.season || null,
+        photo_url: data.photo_url || null,
+        certifications: data.certifications || [],
+      };
 
-        if (error) throw error;
-        toast.success('Producto actualizado');
+      let productId: string;
+
+      if (editingProduct?.id) {
+        await supabase.from('products').update(productPayload).eq('id', editingProduct.id);
+        productId = editingProduct.id;
+        // Delete old variations
+        await supabase.from('product_variations').delete().eq('product_id', productId);
       } else {
-        // Create new product
-        const { error } = await supabase
-          .from('products')
-          .insert({
-            user_id: user?.id,
-            name: data.name,
-            season: data.season || null,
-            product_type: data.product_type || null,
-            photo_url: data.photo_url || null,
-          });
-
-        if (error) throw error;
-        toast.success('Producto creado');
+        const { data: inserted } = await supabase.from('products').insert(productPayload).select();
+        if (!inserted || inserted.length === 0) throw new Error('No se pudo crear el producto');
+        productId = (inserted[0] as any).id;
       }
 
+      // Insert variations
+      const variations = data.variations
+        .filter(v => v.variety || v.packaging || v.net_price)
+        .map(v => ({
+          product_id: productId,
+          variety: v.variety || null,
+          packaging: v.packaging || null,
+          net_price: v.net_price ? parseFloat(v.net_price) : null,
+          unit: v.unit || 'kg',
+        }));
+
+      if (variations.length > 0) {
+        await supabase.from('product_variations').insert(variations).select();
+      }
+
+      toast.success(editingProduct ? 'Producto actualizado' : 'Producto creado');
       setFormOpen(false);
       setEditingProduct(null);
-      fetchProducts();
-    } catch (error) {
-      console.error('Error saving product:', error);
+      fetchAll();
+    } catch (e) {
+      console.error('Error:', e);
       toast.error('Error al guardar');
     } finally {
       setSaving(false);
     }
   };
 
+  const handleDeleteProduct = async (id: string) => {
+    if (!confirm('¿Eliminar este producto?')) return;
+    try {
+      await supabase.from('product_variations').delete().eq('product_id', id);
+      await supabase.from('products').delete().eq('id', id);
+      setProducts(products.filter(p => p.id !== id));
+      toast.success('Producto eliminado');
+    } catch (e) {
+      toast.error('Error al eliminar');
+    }
+  };
+
+  const handleToggleActive = async (id: string, active: boolean) => {
+    await supabase.from('products').update({ is_active: active }).eq('id', id);
+    setProducts(products.map(p => p.id === id ? { ...p, is_active: active } : p));
+  };
+
   const handleEdit = (product: Product) => {
-    setEditingProduct(product);
+    setEditingProduct({
+      id: product.id,
+      name: product.name,
+      product_type: product.product_type || '',
+      season: product.season || '',
+      photo_url: product.photo_url || '',
+      certifications: product.certifications || [],
+      variations: product.variations?.map(v => ({
+        id: v.id,
+        variety: v.variety || '',
+        packaging: v.packaging || '',
+        net_price: v.net_price?.toString() || '',
+        unit: v.unit || 'kg',
+      })) || [],
+    });
     setFormOpen(true);
   };
 
-  const handleCloseForm = () => {
-    setFormOpen(false);
-    setEditingProduct(null);
-  };
-
-  const handleSignOut = async () => {
-    await signOut();
-    navigate('/');
-  };
-
-  if (authLoading) {
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
+
+  const getCertBadge = (cert: string) => {
+    const c = CERTIFICATION_TYPES.find(t => t.value === cert);
+    return c ? `${c.emoji} ${c.label}` : cert;
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -154,75 +271,205 @@ export default function Agricultor() {
               <Leaf className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <h1 className="font-display text-lg font-semibold">Mi Huerta</h1>
-              <p className="text-xs text-muted-foreground">Gestiona tus productos</p>
+              <h1 className="font-display text-lg font-semibold">{profile.farm_name || 'Mi Huerta'}</h1>
+              <p className="text-xs text-muted-foreground">
+                {profile.approximate_location && `📍 ${profile.approximate_location}`}
+                {profile.province && `, ${profile.province}`}
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <ExportDataButton variant="compact" />
-            <Button variant="ghost" size="icon" onClick={handleSignOut}>
+            <Button variant="ghost" size="sm" onClick={() => setShowProfile(!showProfile)}>
+              <Edit className="w-4 h-4 mr-1" /> Perfil
+            </Button>
+            <Button variant="ghost" size="icon" onClick={async () => { await signOut(); navigate('/'); }}>
               <LogOut className="w-5 h-5" />
             </Button>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="container mx-auto px-4 py-6 max-w-2xl">
-        {/* Add Product Button */}
+        {/* Profile Form (collapsible) */}
+        {showProfile && (
+          <Card className="p-5 mb-6 animate-fade-in">
+            <h2 className="font-display text-lg font-semibold mb-4">📋 Mi perfil de productor</h2>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <Label>Nombre / Finca *</Label>
+                  <Input
+                    value={profile.farm_name}
+                    onChange={(e) => setProfile({ ...profile, farm_name: e.target.value })}
+                    placeholder="Ej: Finca El Olivo"
+                    className="h-11"
+                  />
+                </div>
+                <div>
+                  <Label>Localidad</Label>
+                  <Input
+                    value={profile.approximate_location}
+                    onChange={(e) => setProfile({ ...profile, approximate_location: e.target.value })}
+                    placeholder="Ej: Fabara"
+                    className="h-11"
+                  />
+                </div>
+                <div>
+                  <Label>Provincia</Label>
+                  <Input
+                    value={profile.province}
+                    onChange={(e) => setProfile({ ...profile, province: e.target.value })}
+                    placeholder="Ej: Zaragoza"
+                    className="h-11"
+                  />
+                </div>
+                <div>
+                  <Label>Código Postal</Label>
+                  <Input
+                    value={profile.postal_code}
+                    onChange={(e) => setProfile({ ...profile, postal_code: e.target.value })}
+                    placeholder="50790"
+                    className="h-11"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label>Presentación (opcional)</Label>
+                <Input
+                  value={profile.presentation}
+                  onChange={(e) => setProfile({ ...profile, presentation: e.target.value })}
+                  placeholder="Breve descripción de tu actividad..."
+                  className="h-11"
+                />
+              </div>
+
+              <h3 className="font-medium text-sm mt-4 mb-2">📞 Contacto (visible para consumidores)</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <Label>Email de contacto</Label>
+                  <Input
+                    type="email"
+                    value={contact.contact_email}
+                    onChange={(e) => setContact({ ...contact, contact_email: e.target.value })}
+                    placeholder="tu@email.com"
+                    className="h-11"
+                  />
+                </div>
+                <div>
+                  <Label>Teléfono</Label>
+                  <Input
+                    type="tel"
+                    value={contact.contact_phone}
+                    onChange={(e) => setContact({ ...contact, contact_phone: e.target.value })}
+                    placeholder="600 000 000"
+                    className="h-11"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label>Web (opcional)</Label>
+                <Input
+                  value={profile.contact_web}
+                  onChange={(e) => setProfile({ ...profile, contact_web: e.target.value })}
+                  placeholder="www.mifinca.com"
+                  className="h-11"
+                />
+              </div>
+
+              <Button variant="earth" onClick={handleSaveProfile} disabled={savingProfile} className="w-full h-12">
+                {savingProfile ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-5 h-5 mr-2" /> Guardar perfil</>}
+              </Button>
+            </div>
+          </Card>
+        )}
+
+        {/* Add Product */}
         <Button
-          variant="earth"
-          size="xl"
-          className="w-full mb-6 h-16 text-lg gap-3"
-          onClick={() => setFormOpen(true)}
+          variant="earth" size="xl" className="w-full mb-6 h-14 text-lg gap-3"
+          onClick={() => { setEditingProduct(null); setFormOpen(true); }}
         >
-          <Plus className="w-6 h-6" />
-          Añadir Producto
+          <Plus className="w-6 h-6" /> Añadir Producto
         </Button>
 
         {/* Products List */}
-        {loading ? (
-          <div className="flex justify-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          </div>
-        ) : products.length === 0 ? (
+        {products.length === 0 ? (
           <div className="text-center py-12">
             <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
               <Leaf className="w-10 h-10 text-muted-foreground" />
             </div>
-            <h3 className="font-display text-xl font-semibold text-foreground mb-2">
-              Sin productos aún
-            </h3>
-            <p className="text-muted-foreground">
-              Añade tu primer producto para empezar
-            </p>
+            <h3 className="font-display text-xl font-semibold mb-2">Sin productos aún</h3>
+            <p className="text-muted-foreground">Añade tu primer producto</p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {products.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onToggleActive={handleToggleActive}
-                onEdit={handleEdit}
-              />
+              <Card key={product.id} className={`p-4 ${!product.is_active ? 'opacity-50' : ''}`}>
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    {product.product_type && PRODUCT_CATEGORY_EMOJIS[product.product_type] && (
+                      <span className="text-2xl">{PRODUCT_CATEGORY_EMOJIS[product.product_type]}</span>
+                    )}
+                    <div>
+                      <h3 className="font-semibold">{product.name}</h3>
+                      <p className="text-xs text-muted-foreground">
+                        {product.product_type}
+                        {product.season && ` · 🗓️ ${product.season}`}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-1">
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleToggleActive(product.id, !product.is_active)}>
+                      {product.is_active ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(product)}>
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDeleteProduct(product.id)}>
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Certifications */}
+                {product.certifications?.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mb-2">
+                    {product.certifications.map(cert => (
+                      <span key={cert} className="text-xs bg-muted rounded-full px-2 py-0.5">{getCertBadge(cert)}</span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Variations */}
+                {product.variations && product.variations.length > 0 && (
+                  <div className="space-y-1 mt-2">
+                    {product.variations.map(v => (
+                      <div key={v.id} className="flex items-center justify-between text-sm bg-muted/50 rounded px-3 py-1.5">
+                        <span>
+                          {v.variety && <span>🌱 {v.variety}</span>}
+                          {v.variety && v.packaging && <span className="mx-1 text-muted-foreground">·</span>}
+                          {v.packaging && <span>📦 {v.packaging}</span>}
+                        </span>
+                        {v.net_price != null && (
+                          <span className="font-semibold text-primary">
+                            {v.net_price} €/{v.unit || 'kg'}
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </Card>
             ))}
           </div>
         )}
       </main>
 
-      {/* Product Form Modal */}
       <ProductForm
         open={formOpen}
-        onClose={handleCloseForm}
+        onClose={() => { setFormOpen(false); setEditingProduct(null); }}
         onSave={handleSaveProduct}
-        initialData={editingProduct ? {
-          id: editingProduct.id,
-          name: editingProduct.name,
-          season: editingProduct.season || '',
-          product_type: editingProduct.product_type || '',
-          photo_url: editingProduct.photo_url || '',
-        } : undefined}
+        initialData={editingProduct}
         loading={saving}
       />
     </div>
