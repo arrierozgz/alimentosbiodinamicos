@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import Header from '@/components/layout/Header';
@@ -55,6 +56,7 @@ interface FarmerContact {
 }
 
 export default function Explorar() {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -258,10 +260,10 @@ export default function Explorar() {
         <section className="bg-gradient-natural py-8 md:py-12">
           <div className="container max-w-3xl text-center">
             <h1 className="font-display text-3xl md:text-4xl font-semibold text-foreground mb-2">
-              Listín de productores
+              {t('explore.title')}
             </h1>
             <p className="text-lg text-muted-foreground mb-6">
-              Directorio de alimentos ecológicos, biodinámicos y Demeter
+              {t('explore.subtitle')}
             </p>
 
             {/* Search bar */}
@@ -269,7 +271,7 @@ export default function Explorar() {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder="Buscar productor, producto o ubicación..."
+                placeholder={t('explore.search_placeholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-12 h-14 text-lg rounded-xl border-2"
@@ -292,7 +294,7 @@ export default function Explorar() {
               onClick={() => setShowFilters(!showFilters)}
             >
               <Filter className="w-5 h-5" />
-              Filtros avanzados
+              {t('explore.advanced_filters')}
               {hasActiveFilters && (
                 <span className="ml-1 bg-white/20 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
                   {[filterCategory, filterVariety, filterPackaging, filterCertification, filterLocation].filter(Boolean).length}
@@ -465,8 +467,8 @@ export default function Explorar() {
                 </div>
                 <h2 className="font-display text-2xl font-semibold mb-2">
                   {hasActiveFilters || searchTerm
-                    ? 'No encontramos resultados'
-                    : 'Aún no hay productores registrados'}
+                    ? t('explore.no_results')
+                    : t('explore.no_producers')}
                 </h2>
                 <p className="text-muted-foreground text-lg mb-6">
                   {hasActiveFilters || searchTerm
@@ -656,14 +658,14 @@ export default function Explorar() {
         <section className="py-12 bg-muted/30">
           <div className="container max-w-2xl text-center">
             <h2 className="font-display text-2xl font-semibold mb-3">
-              ¿Eres productor ecológico o biodinámico?
+              {t('explore.cta_title')}
             </h2>
             <p className="text-muted-foreground text-lg mb-6">
-              Aparece en el listín. Sin comisiones, sin intermediarios.
+              {t('explore.cta_subtitle')}
             </p>
             <Link to="/auth">
               <Button variant="earth" size="xl" className="h-14 text-lg">
-                Publicar mis productos
+                {t('explore.cta_button')}
               </Button>
             </Link>
           </div>

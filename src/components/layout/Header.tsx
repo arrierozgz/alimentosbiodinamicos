@@ -2,9 +2,11 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Leaf, User, Search, Heart, MessageCircle, ChevronDown, LogOut, Download } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRoles } from "@/hooks/useUserRoles";
 import { useDataExport } from "@/hooks/useDataExport";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -73,6 +75,7 @@ const Header = () => {
 
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center gap-2">
+          <LanguageSwitcher />
           {user && (
             <Link to="/mensajes">
               <Button variant="ghost" size="icon">
