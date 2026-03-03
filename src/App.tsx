@@ -15,6 +15,7 @@ import Preparados from "./pages/Preparados";
 import SobreNosotros from "./pages/SobreNosotros";
 import MiPerfil from "./pages/MiPerfil";
 import Elaborador from "./pages/Elaborador";
+import Consumidor from "./pages/Consumidor";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 
@@ -34,6 +35,7 @@ const App = () => (
               <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/seleccionar-rol" element={<RoleSelection />} />
+              <Route path="/consumidor" element={<Consumidor />} />
               <Route path="/agricultor" element={<Agricultor />} />
               <Route path="/explorar" element={<Explorar />} />
               <Route path="/preparados" element={<Preparados />} />

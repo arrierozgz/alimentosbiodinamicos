@@ -65,7 +65,7 @@ export default function RoleSelection() {
       // Navigate based on primary role
       const primaryRole = selectedRoles[0];
       if (primaryRole === 'consumidor') {
-        navigate('/explorar');
+        navigate('/consumidor');
       } else if (primaryRole === 'agricultor') {
         navigate('/agricultor');
       } else if (primaryRole === 'elaborador') {
