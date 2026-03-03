@@ -1,6 +1,6 @@
 // Alimentos Biodinámicos — Server unificado
 // Sirve: static files (dist/) + Auth API + proxy PostgREST
-// Puerto: 3080 (misma URL pública que antes)
+// Puerto: 3080
 
 const express = require('express');
 const jwt = require('jsonwebtoken');
@@ -47,9 +47,11 @@ function requireAuth(req, res, next) {
 }
 
 // ==========================================
-// AUTH ENDPOINTS
+// API ROUTES (all under /api/)
 // ==========================================
-app.post('/auth/signup', async (req, res) => {
+const api = express.Router();
+
+api.post('/auth/signup', async (req, res) => {
   const { email, password, display_name } = req.body;
   if (!email || !password) return res.status(400).json({ error: 'Email y contraseña requeridos' });
   if (password.length < 6) return res.status(400).json({ error: 'Contraseña mínimo 6 caracteres' });
@@ -66,7 +68,7 @@ app.post('/auth/signup', async (req, res) => {
   } catch (e) { console.error('Signup error:', e); res.status(500).json({ error: 'Error interno' }); }
 });
 
-app.post('/auth/signin', async (req, res) => {
+api.post('/auth/signin', async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) return res.status(400).json({ error: 'Email y contraseña requeridos' });
   try {
@@ -79,9 +81,9 @@ app.post('/auth/signin', async (req, res) => {
   } catch (e) { console.error('Signin error:', e); res.status(500).json({ error: 'Error interno' }); }
 });
 
-app.post('/auth/signout', (req, res) => res.json({ message: 'ok' }));
+api.post('/auth/signout', (req, res) => res.json({ message: 'ok' }));
 
-app.get('/auth/user', requireAuth, async (req, res) => {
+api.get('/auth/user', requireAuth, async (req, res) => {
   try {
     const result = await pool.query('SELECT id, email, display_name, created_at FROM users WHERE id = $1', [req.user.sub]);
     if (result.rows.length === 0) return res.status(404).json({ error: 'No encontrado' });
@@ -89,7 +91,7 @@ app.get('/auth/user', requireAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: 'Error interno' }); }
 });
 
-app.post('/auth/reset-password', requireAuth, async (req, res) => {
+api.post('/auth/reset-password', requireAuth, async (req, res) => {
   const { password } = req.body;
   if (!password || password.length < 6) return res.status(400).json({ error: 'Contraseña mínimo 6 caracteres' });
   try {
@@ -99,17 +101,15 @@ app.post('/auth/reset-password', requireAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: 'Error interno' }); }
 });
 
-// ==========================================
-// ROLES
-// ==========================================
-app.get('/roles', requireAuth, async (req, res) => {
+// Roles
+api.get('/roles', requireAuth, async (req, res) => {
   try {
     const result = await pool.query('SELECT role FROM user_roles WHERE user_id = $1', [req.user.sub]);
     res.json(result.rows.map(r => r.role));
   } catch (e) { res.status(500).json({ error: 'Error interno' }); }
 });
 
-app.post('/roles', requireAuth, async (req, res) => {
+api.post('/roles', requireAuth, async (req, res) => {
   const { role } = req.body;
   if (!['consumidor', 'agricultor', 'ganadero', 'elaborador'].includes(role)) return res.status(400).json({ error: 'Rol no válido' });
   try {
@@ -118,10 +118,8 @@ app.post('/roles', requireAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: 'Error interno' }); }
 });
 
-// ==========================================
-// PostgREST PROXY (/rest/v1/*)
-// ==========================================
-app.use('/rest/v1', (req, res) => {
+// PostgREST proxy
+api.use('/data', (req, res) => {
   const options = {
     hostname: '127.0.0.1',
     port: POSTGREST_PORT,
@@ -141,13 +139,17 @@ app.use('/rest/v1', (req, res) => {
   proxyReq.end();
 });
 
+app.use('/api', api);
+
 // ==========================================
 // STATIC FILES + SPA FALLBACK
 // ==========================================
-const distPath = path.join(__dirname, '..', 'dist');
+const distPath = path.resolve(__dirname, '..', 'dist');
 app.use(express.static(distPath));
-app.get('/{*splat}', (req, res) => {
-  res.sendFile(path.join(distPath, 'index.html'));
+
+// SPA fallback
+app.use((req, res) => {
+  res.sendFile('index.html', { root: distPath });
 });
 
 // ==========================================

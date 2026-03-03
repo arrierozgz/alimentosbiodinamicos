@@ -124,7 +124,7 @@ class QueryBuilder {
   }
 
   async execute() {
-    let url = `/rest/v1/${this.table}?select=${encodeURIComponent(this.selectCols)}`;
+    let url = `/data/${this.table}?select=${encodeURIComponent(this.selectCols)}`;
     this.filters.forEach(f => { url += `&${f}`; });
     if (this.limitVal) url += `&limit=${this.limitVal}`;
     if (this.orderCol) url += `&order=${this.orderCol}.${this.orderAsc ? 'asc' : 'desc'}`;
@@ -156,7 +156,7 @@ class InsertBuilder {
   }
 
   async select(columns?: string) {
-    const res = await fetchAPI(`/rest/v1/${this.table}`, {
+    const res = await fetchAPI(`/data/${this.table}`, {
       method: 'POST',
       headers: {
         'Prefer': 'return=representation',
@@ -194,7 +194,7 @@ class UpdateBuilder {
   }
 
   async select(columns?: string) {
-    let url = `/rest/v1/${this.table}`;
+    let url = `/data/${this.table}`;
     if (this.filters.length) url += `?${this.filters.join('&')}`;
 
     const res = await fetchAPI(url, {
@@ -233,7 +233,7 @@ class DeleteBuilder {
   }
 
   async then(resolve: (value: any) => void) {
-    let url = `/rest/v1/${this.table}`;
+    let url = `/data/${this.table}`;
     if (this.filters.length) url += `?${this.filters.join('&')}`;
 
     const res = await fetchAPI(url, { method: 'DELETE' });
@@ -257,7 +257,7 @@ class UpsertBuilder {
   }
 
   async select(columns?: string) {
-    const res = await fetchAPI(`/rest/v1/${this.table}`, {
+    const res = await fetchAPI(`/data/${this.table}`, {
       method: 'POST',
       headers: {
         'Prefer': 'return=representation,resolution=merge-duplicates',
