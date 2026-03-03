@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { Input } from '@/components/ui/input';
@@ -9,7 +10,7 @@ import { Card } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Search, Leaf, MapPin, Filter, User, ShoppingBasket,
-  Loader2, X, Mail, Phone, Globe, Package, Award,
+  Loader2, X, Mail, Phone, Globe, Package, Award, MessageCircle,
 } from 'lucide-react';
 import {
   PRODUCT_CATEGORIES, PRODUCT_CATEGORY_EMOJIS,
@@ -55,6 +56,8 @@ interface FarmerContact {
 
 export default function Explorar() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const initialMode = searchParams.get('modo') || '';
 
   const [farmers, setFarmers] = useState<FarmerProfile[]>([]);
@@ -620,6 +623,22 @@ export default function Explorar() {
                                     <p className="text-muted-foreground text-xs">Este productor no ha publicado datos de contacto todavía.</p>
                                   )}
                                 </div>
+                                {user && user.id !== farmer.user_id && (
+                                  <Button
+                                    variant="earth" size="sm" className="w-full mt-3"
+                                    onClick={(e) => { e.stopPropagation(); navigate(`/mensajes?con=${farmer.user_id}`); }}
+                                  >
+                                    <MessageCircle className="w-4 h-4 mr-2" /> Enviar mensaje
+                                  </Button>
+                                )}
+                                {!user && (
+                                  <Button
+                                    variant="outline" size="sm" className="w-full mt-3"
+                                    onClick={(e) => { e.stopPropagation(); navigate('/auth'); }}
+                                  >
+                                    Inicia sesión para contactar
+                                  </Button>
+                                )}
                               </div>
                             </div>
                           )}

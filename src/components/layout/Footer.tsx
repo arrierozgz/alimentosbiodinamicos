@@ -92,13 +92,12 @@ const Footer = () => {
         {/* Acknowledgments */}
         <div className="mt-12 pt-8 border-t border-border">
           <p className="text-center text-sm text-muted-foreground leading-relaxed max-w-2xl mx-auto mb-4">
-            Esta aplicación ha sido construida de forma gratuita gracias a herramientas de IA 
-            (ChatGPT y Lovable), al servicio de un proyecto sin ánimo de lucro, con respeto 
-            por la agricultura biodinámica y la libertad humana.
+            Directorio de alimentos ecológicos, biodinámicos y Demeter. 
+            Sin intermediarios, sin comisiones — solo personas.
           </p>
           <p className="text-center text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Pedidos Alimentos Biodinámicos. 
-            Proyecto sin ánimo de lucro. Todos los derechos reservados.
+            © {new Date().getFullYear()} Alimentos Biodinámicos. 
+            Proyecto sin ánimo de lucro.
           </p>
         </div>
       </div>

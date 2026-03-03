@@ -16,6 +16,7 @@ import SobreNosotros from "./pages/SobreNosotros";
 import MiPerfil from "./pages/MiPerfil";
 import Elaborador from "./pages/Elaborador";
 import Consumidor from "./pages/Consumidor";
+import Mensajes from "./pages/Mensajes";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 
@@ -42,6 +43,7 @@ const App = () => (
               <Route path="/sobre-nosotros" element={<SobreNosotros />} />
               <Route path="/mi-perfil" element={<MiPerfil />} />
               <Route path="/elaborador" element={<Elaborador />} />
+              <Route path="/mensajes" element={<Mensajes />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

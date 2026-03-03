@@ -118,6 +118,91 @@ api.post('/roles', requireAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: 'Error interno' }); }
 });
 
+// ==========================================
+// MESSAGES
+// ==========================================
+
+// GET /messages/conversations — list conversations
+api.get('/messages/conversations', requireAuth, async (req, res) => {
+  try {
+    const result = await pool.query(`
+      WITH convos AS (
+        SELECT DISTINCT
+          CASE WHEN from_user_id = $1 THEN to_user_id ELSE from_user_id END AS other_user_id
+        FROM messages
+        WHERE from_user_id = $1 OR to_user_id = $1
+      )
+      SELECT
+        c.other_user_id,
+        u.display_name,
+        u.email,
+        fp.farm_name,
+        (SELECT message FROM messages
+         WHERE (from_user_id = $1 AND to_user_id = c.other_user_id)
+            OR (from_user_id = c.other_user_id AND to_user_id = $1)
+         ORDER BY created_at DESC LIMIT 1) AS last_message,
+        (SELECT created_at FROM messages
+         WHERE (from_user_id = $1 AND to_user_id = c.other_user_id)
+            OR (from_user_id = c.other_user_id AND to_user_id = $1)
+         ORDER BY created_at DESC LIMIT 1) AS last_message_at,
+        (SELECT count(*)::int FROM messages
+         WHERE from_user_id = c.other_user_id AND to_user_id = $1 AND is_read = false) AS unread_count
+      FROM convos c
+      LEFT JOIN users u ON u.id = c.other_user_id
+      LEFT JOIN farmer_profiles fp ON fp.user_id = c.other_user_id
+      ORDER BY last_message_at DESC
+    `, [req.user.sub]);
+    res.json(result.rows);
+  } catch (e) { console.error(e); res.status(500).json({ error: 'Error' }); }
+});
+
+// GET /messages/:userId — get messages with a user
+api.get('/messages/:userId', requireAuth, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const result = await pool.query(`
+      SELECT id, from_user_id, to_user_id, message, is_read, created_at
+      FROM messages
+      WHERE (from_user_id = $1 AND to_user_id = $2)
+         OR (from_user_id = $2 AND to_user_id = $1)
+      ORDER BY created_at ASC
+      LIMIT 200
+    `, [req.user.sub, userId]);
+
+    // Mark as read
+    await pool.query(`
+      UPDATE messages SET is_read = true
+      WHERE from_user_id = $2 AND to_user_id = $1 AND is_read = false
+    `, [req.user.sub, userId]);
+
+    res.json(result.rows);
+  } catch (e) { console.error(e); res.status(500).json({ error: 'Error' }); }
+});
+
+// POST /messages — send a message
+api.post('/messages', requireAuth, async (req, res) => {
+  const { to_user_id, message } = req.body;
+  if (!to_user_id || !message?.trim()) return res.status(400).json({ error: 'Destinatario y mensaje requeridos' });
+  try {
+    const result = await pool.query(
+      'INSERT INTO messages (from_user_id, to_user_id, message) VALUES ($1, $2, $3) RETURNING *',
+      [req.user.sub, to_user_id, message.trim()]
+    );
+    res.json(result.rows[0]);
+  } catch (e) { console.error(e); res.status(500).json({ error: 'Error' }); }
+});
+
+// GET /messages/unread/count — unread count
+api.get('/messages/unread/count', requireAuth, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT count(*)::int AS count FROM messages WHERE to_user_id = $1 AND is_read = false',
+      [req.user.sub]
+    );
+    res.json({ count: result.rows[0].count });
+  } catch (e) { res.status(500).json({ error: 'Error' }); }
+});
+
 // PostgREST proxy
 api.use('/data', (req, res) => {
   const options = {

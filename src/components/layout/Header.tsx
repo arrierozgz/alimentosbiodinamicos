@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Leaf, User, Search, Heart, ChevronDown, LogOut, Download } from "lucide-react";
+import { Menu, X, Leaf, User, Search, Heart, MessageCircle, ChevronDown, LogOut, Download } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRoles } from "@/hooks/useUserRoles";
 import { useDataExport } from "@/hooks/useDataExport";
@@ -73,6 +73,13 @@ const Header = () => {
 
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center gap-2">
+          {user && (
+            <Link to="/mensajes">
+              <Button variant="ghost" size="icon">
+                <MessageCircle className="h-5 w-5" />
+              </Button>
+            </Link>
+          )}
           <Link to="/favoritos">
             <Button variant="ghost" size="icon">
               <Heart className="h-5 w-5" />
