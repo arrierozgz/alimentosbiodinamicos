@@ -24,6 +24,7 @@ const roleLabels: Record<string, string> = {
 };
 
 const Header = () => {
+  const { t } = useTranslation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
   const { roles, activeRole, setActiveRole } = useUserRoles();
@@ -63,13 +64,13 @@ const Header = () => {
             </Button>
           </Link>
           <Link to="/mapa">
-            <Button variant="ghost">Mapa</Button>
+            <Button variant="ghost">{t("nav.map")}</Button>
           </Link>
           <Link to="/preparados">
-            <Button variant="ghost">Preparados</Button>
+            <Button variant="ghost">{t("nav.preparations")}</Button>
           </Link>
           <Link to="/sobre-nosotros">
-            <Button variant="ghost">Sobre Nosotros</Button>
+            <Button variant="ghost">{t("nav.about")}</Button>
           </Link>
         </nav>
 
@@ -158,7 +159,7 @@ const Header = () => {
                 </Button>
               </Link>
               <Link to="/auth">
-                <Button variant="earth">Únete</Button>
+                <Button variant="earth">{t("common.register")}</Button>
               </Link>
             </>
           )}
