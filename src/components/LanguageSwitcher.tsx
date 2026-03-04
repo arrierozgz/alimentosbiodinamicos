@@ -9,7 +9,7 @@ export default function LanguageSwitcher() {
     <div className="flex items-center gap-1">
       <button
         onClick={() => changeLanguage('es')}
-        className={`text-xl leading-none transition-opacity rounded-sm px-0.5 ${current === 'es' ? 'opacity-100 ring-2 ring-primary ring-offset-1' : 'opacity-50 hover:opacity-80'}`}
+        className={`text-3xl leading-none transition-opacity rounded-sm px-1 ${current === 'es' ? 'opacity-100 ring-2 ring-primary ring-offset-1' : 'opacity-50 hover:opacity-80'}`}
         title="Español"
         aria-label="Español"
       >
@@ -17,7 +17,7 @@ export default function LanguageSwitcher() {
       </button>
       <button
         onClick={() => changeLanguage('en')}
-        className={`text-xl leading-none transition-opacity rounded-sm px-0.5 ${current === 'en' ? 'opacity-100 ring-2 ring-primary ring-offset-1' : 'opacity-50 hover:opacity-80'}`}
+        className={`text-3xl leading-none transition-opacity rounded-sm px-1 ${current === 'en' ? 'opacity-100 ring-2 ring-primary ring-offset-1' : 'opacity-50 hover:opacity-80'}`}
         title="English"
         aria-label="English"
       >
