@@ -379,6 +379,7 @@ export const supabase = {
       }
     },
 
+signInWithGoogle: async (credential: string) => {      try {        const res = await fetch(`${API_URL}/auth/google`, {          method: "POST",          headers: { "Content-Type": "application/json" },          body: JSON.stringify({ credential }),        });        const data = await res.json();        if (!res.ok) return { data: {}, error: { message: data.error } };        saveAuth(data.user, data.access_token);        return {          data: { user: { id: data.user.id, email: data.user.email, user_metadata: { display_name: data.user.display_name } }, session: { access_token: data.access_token } },          error: null,        };      } catch (e) {        return { data: {}, error: { message: "Error de conexión" } };      }    },
     signInWithOtp: async ({ email }: { email: string }) => {
       // Magic link not supported in self-hosted — return friendly error
       return { data: {}, error: { message: 'Magic link no disponible. Usa email y contraseña.' } };

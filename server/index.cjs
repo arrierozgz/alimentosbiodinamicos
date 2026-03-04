@@ -6,6 +6,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { Pool } = require('pg');
+const { OAuth2Client } = require('google-auth-library');
 const cors = require('cors');
 const path = require('path');
 const http = require('http');
@@ -17,6 +18,8 @@ app.use(express.json());
 const JWT_SECRET = process.env.JWT_SECRET || '60fbe00b1a938a795e143da6622ff24234275a2f2964d50f0ecda12cbe321a7f';
 const PORT = process.env.PORT || 3080;
 const POSTGREST_PORT = 3001;
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
+const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 const pool = new Pool({
   host: 'localhost',
@@ -101,6 +104,7 @@ api.post('/auth/reset-password', requireAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: 'Error interno' }); }
 });
 
+// Google Sign-Inapi.post("/auth/google", async (req, res) => {  const { credential } = req.body;  if (!credential) return res.status(400).json({ error: "Token requerido" });  if (!GOOGLE_CLIENT_ID) return res.status(500).json({ error: "Google Sign-In no configurado" });  try {    const ticket = await googleClient.verifyIdToken({ idToken: credential, audience: GOOGLE_CLIENT_ID });    const payload = ticket.getPayload();    if (!payload || !payload.email) return res.status(400).json({ error: "Token inválido" });    const email = payload.email.toLowerCase();    const displayName = payload.name || null;    // Check if user exists    let result = await pool.query("SELECT * FROM users WHERE email = ", [email]);    let user;    if (result.rows.length > 0) {      user = result.rows[0];      await pool.query("UPDATE users SET last_sign_in = now() WHERE id = ", [user.id]);    } else {      // Create new user (no password needed for Google users)      const randomHash = await require("bcryptjs").hash(require("crypto").randomBytes(32).toString("hex"), 12);      result = await pool.query(        "INSERT INTO users (email, password_hash, display_name, email_confirmed) VALUES (, , , true) RETURNING id, email, display_name",        [email, randomHash, displayName]      );      user = result.rows[0];    }    res.json({ user: { id: user.id, email: user.email, display_name: user.display_name }, access_token: generateToken(user), token_type: "bearer" });  } catch (e) { console.error("Google auth error:", e); res.status(401).json({ error: "Error de autenticación con Google" }); }});
 // Roles
 api.get('/roles', requireAuth, async (req, res) => {
   try {

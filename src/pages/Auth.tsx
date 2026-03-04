@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
@@ -10,6 +10,8 @@ import { Leaf, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
+
 type AuthMode = 'login' | 'register';
 
 export default function Auth() {
@@ -20,7 +22,7 @@ export default function Auth() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { user, signIn, signUp } = useAuth();
+  const { user, signIn, signUp, signInWithGoogle } = useAuth();
   const { roles, loading: rolesLoading } = useUserRoles();
   const navigate = useNavigate();
 
@@ -36,6 +38,75 @@ export default function Auth() {
       }
     }
   }, [user, roles, rolesLoading, navigate]);
+
+  // Google Sign-In callback
+  const handleGoogleCallback = useCallback(async (response: any) => {
+    if (!response?.credential) return;
+    setLoading(true);
+    try {
+      const { error } = await signInWithGoogle(response.credential);
+      if (error) toast.error(error.message);
+      else toast.success(t('auth.welcome'));
+    } finally {
+      setLoading(false);
+    }
+  }, [signInWithGoogle, t]);
+
+  // Load Google Identity Services script
+  useEffect(() => {
+    if (!GOOGLE_CLIENT_ID) return;
+
+    // Check if script already loaded
+    if (document.getElementById('google-gsi-script')) {
+      initGoogleButton();
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.id = 'google-gsi-script';
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    script.onload = () => initGoogleButton();
+    document.head.appendChild(script);
+
+    return () => {
+      // Don't remove script on unmount — it's cached
+    };
+  }, [GOOGLE_CLIENT_ID]);
+
+  // Re-render Google button when mode changes
+  useEffect(() => {
+    if (GOOGLE_CLIENT_ID && (window as any).google?.accounts?.id) {
+      setTimeout(() => initGoogleButton(), 100);
+    }
+  }, [mode]);
+
+  function initGoogleButton() {
+    const google = (window as any).google;
+    if (!google?.accounts?.id) return;
+
+    google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: handleGoogleCallback,
+      auto_select: false,
+      cancel_on_tap_outside: true,
+    });
+
+    const container = document.getElementById('google-signin-btn');
+    if (container) {
+      container.innerHTML = '';
+      google.accounts.id.renderButton(container, {
+        type: 'standard',
+        theme: 'outline',
+        size: 'large',
+        width: container.offsetWidth || 400,
+        text: mode === 'login' ? 'signin_with' : 'signup_with',
+        shape: 'rectangular',
+        logo_alignment: 'center',
+      });
+    }
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,10 +150,25 @@ export default function Auth() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Google Sign-In button */}
+          {GOOGLE_CLIENT_ID && (
+            <>
+              <div id="google-signin-btn" className="flex justify-center min-h-[44px]" />
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-border" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-card px-3 text-muted-foreground">{t('common.or')}</span>
+                </div>
+              </div>
+            </>
+          )}
+
           <form onSubmit={mode === 'login' ? handleLogin : handleRegister} className="space-y-4">
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-              <Input type="email" placeholder={t('auth.email_placeholder')} value={email} onChange={e => setEmail(e.target.value)} className="pl-12 h-14 text-lg" required autoComplete="email" autoFocus />
+              <Input type="email" placeholder={t('auth.email_placeholder')} value={email} onChange={e => setEmail(e.target.value)} className="pl-12 h-14 text-lg" required autoComplete="email" autoFocus={!GOOGLE_CLIENT_ID} />
             </div>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
