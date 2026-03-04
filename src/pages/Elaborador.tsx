@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -48,6 +49,7 @@ interface ContactData {
 }
 
 export default function Elaborador() {
+  const { t } = useTranslation();
   const { user, loading: authLoading, signOut } = useAuth();
   const navigate = useNavigate();
 
@@ -64,7 +66,6 @@ export default function Elaborador() {
   });
   const [contact, setContact] = useState<ContactData>({ contact_email: '', contact_phone: '' });
 
-  // Form state
   const [formPrep, setFormPrep] = useState('');
   const [formPrice, setFormPrice] = useState('');
   const [formUnit, setFormUnit] = useState('kg');
@@ -102,7 +103,7 @@ export default function Elaborador() {
   };
 
   const handleSaveProfile = async () => {
-    if (!profile.farm_name.trim()) { toast.error('Nombre obligatorio'); return; }
+    if (!profile.farm_name.trim()) { toast.error(t('elaborador.name_required')); return; }
     setSavingProfile(true);
     try {
       const data = {
@@ -117,9 +118,9 @@ export default function Elaborador() {
         if (inserted?.length) setProfile(prev => ({ ...prev, id: (inserted[0] as any).id }));
       }
       await supabase.from('farmer_contact_details' as any).upsert({ user_id: user?.id, contact_email: contact.contact_email || null, contact_phone: contact.contact_phone || null }).select();
-      toast.success('Perfil guardado');
+      toast.success(t('elaborador.profile_saved'));
       setShowProfile(false);
-    } catch (e) { toast.error('Error'); console.error(e); } finally { setSavingProfile(false); }
+    } catch (e) { toast.error(t('elaborador.error_save')); console.error(e); } finally { setSavingProfile(false); }
   };
 
   const openForm = (item?: Preparation) => {
@@ -138,7 +139,7 @@ export default function Elaborador() {
   };
 
   const handleSavePrep = async () => {
-    if (!formPrep) { toast.error('Selecciona un preparado'); return; }
+    if (!formPrep) { toast.error(t('elaborador.select_required')); return; }
     setSaving(true);
     try {
       const payload = {
@@ -153,17 +154,17 @@ export default function Elaborador() {
       } else {
         await supabase.from('biodynamic_preparations').insert(payload).select();
       }
-      toast.success(editItem ? 'Actualizado' : 'Preparado añadido');
+      toast.success(editItem ? t('elaborador.updated') : t('elaborador.added'));
       setFormOpen(false);
       fetchAll();
     } catch (e) { toast.error('Error'); console.error(e); } finally { setSaving(false); }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('¿Eliminar?')) return;
+    if (!confirm(t('elaborador.confirm_delete'))) return;
     await supabase.from('biodynamic_preparations').delete().eq('id', id);
     setPreparations(preparations.filter(p => p.id !== id));
-    toast.success('Eliminado');
+    toast.success(t('elaborador.deleted'));
   };
 
   const handleToggle = async (id: string, active: boolean) => {
@@ -186,7 +187,7 @@ export default function Elaborador() {
               <Beaker className="w-5 h-5 text-purple-700" />
             </div>
             <div>
-              <h1 className="font-display text-lg font-semibold">{profile.farm_name || 'Mis Preparados'}</h1>
+              <h1 className="font-display text-lg font-semibold">{profile.farm_name || t('elaborador.my_preparations')}</h1>
               <p className="text-xs text-muted-foreground">
                 {profile.approximate_location && `📍 ${profile.approximate_location}`}
                 {profile.province && `, ${profile.province}`}
@@ -195,7 +196,7 @@ export default function Elaborador() {
           </div>
           <div className="flex gap-2">
             <Button variant="ghost" size="sm" onClick={() => setShowProfile(!showProfile)}>
-              <Edit className="w-4 h-4 mr-1" /> Perfil
+              <Edit className="w-4 h-4 mr-1" /> {t('elaborador.profile_btn')}
             </Button>
             <Button variant="ghost" size="icon" onClick={async () => { await signOut(); navigate('/'); }}>
               <LogOut className="w-5 h-5" />
@@ -205,42 +206,39 @@ export default function Elaborador() {
       </header>
 
       <main className="container mx-auto px-4 py-6 max-w-2xl">
-        {/* Profile */}
         {showProfile && (
           <Card className="p-5 mb-6 animate-fade-in">
-            <h2 className="font-display text-lg font-semibold mb-4">📋 Mi perfil de elaborador</h2>
+            <h2 className="font-display text-lg font-semibold mb-4">{t('elaborador.profile_title')}</h2>
             <div className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div><Label>Nombre *</Label><Input value={profile.farm_name} onChange={e => setProfile({ ...profile, farm_name: e.target.value })} placeholder="Nombre o empresa" className="h-11" /></div>
-                <div><Label>Localidad</Label><Input value={profile.approximate_location} onChange={e => setProfile({ ...profile, approximate_location: e.target.value })} placeholder="Ej: Almonacid" className="h-11" /></div>
-                <div><Label>Provincia</Label><Input value={profile.province} onChange={e => setProfile({ ...profile, province: e.target.value })} placeholder="Zaragoza" className="h-11" /></div>
-                <div><Label>CP</Label><Input value={profile.postal_code} onChange={e => setProfile({ ...profile, postal_code: e.target.value })} placeholder="50100" className="h-11" /></div>
+                <div><Label>{t('farmer_panel.farm_name')} *</Label><Input value={profile.farm_name} onChange={e => setProfile({ ...profile, farm_name: e.target.value })} placeholder={t('farmer_panel.farm_name_placeholder')} className="h-11" /></div>
+                <div><Label>{t('farmer_panel.location')}</Label><Input value={profile.approximate_location} onChange={e => setProfile({ ...profile, approximate_location: e.target.value })} placeholder={t('farmer_panel.location_placeholder')} className="h-11" /></div>
+                <div><Label>{t('farmer_panel.province')}</Label><Input value={profile.province} onChange={e => setProfile({ ...profile, province: e.target.value })} placeholder={t('farmer_panel.province_placeholder')} className="h-11" /></div>
+                <div><Label>{t('farmer_panel.postal_code')}</Label><Input value={profile.postal_code} onChange={e => setProfile({ ...profile, postal_code: e.target.value })} placeholder="50100" className="h-11" /></div>
               </div>
-              <h3 className="font-medium text-sm">📞 Contacto</h3>
+              <h3 className="font-medium text-sm">{t('farmer_panel.contact_title')}</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div><Label>Email</Label><Input type="email" value={contact.contact_email} onChange={e => setContact({ ...contact, contact_email: e.target.value })} className="h-11" /></div>
-                <div><Label>Teléfono</Label><Input type="tel" value={contact.contact_phone} onChange={e => setContact({ ...contact, contact_phone: e.target.value })} placeholder="600 000 000" className="h-11" /></div>
+                <div><Label>{t('farmer_panel.contact_email')}</Label><Input type="email" value={contact.contact_email} onChange={e => setContact({ ...contact, contact_email: e.target.value })} className="h-11" /></div>
+                <div><Label>{t('farmer_panel.contact_phone')}</Label><Input type="tel" value={contact.contact_phone} onChange={e => setContact({ ...contact, contact_phone: e.target.value })} placeholder="600 000 000" className="h-11" /></div>
               </div>
               <Button variant="earth" onClick={handleSaveProfile} disabled={savingProfile} className="w-full h-12">
-                {savingProfile ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-5 h-5 mr-2" /> Guardar</>}
+                {savingProfile ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-5 h-5 mr-2" /> {t('common.save')}</>}
               </Button>
             </div>
           </Card>
         )}
 
-        {/* Add */}
         <Button variant="earth" size="xl" className="w-full mb-6 h-14 text-lg gap-3" onClick={() => openForm()}>
-          <Plus className="w-6 h-6" /> Añadir Preparado
+          <Plus className="w-6 h-6" /> {t('elaborador.add_preparation')}
         </Button>
 
-        {/* List */}
         {preparations.length === 0 ? (
           <div className="text-center py-12">
             <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
               <Beaker className="w-10 h-10 text-muted-foreground" />
             </div>
-            <h3 className="font-display text-xl font-semibold mb-2">Sin preparados</h3>
-            <p className="text-muted-foreground">Añade los preparados que elaboras</p>
+            <h3 className="font-display text-xl font-semibold mb-2">{t('elaborador.no_preparations')}</h3>
+            <p className="text-muted-foreground">{t('elaborador.add_first')}</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -277,20 +275,19 @@ export default function Elaborador() {
         )}
       </main>
 
-      {/* Form dialog */}
       <Dialog open={formOpen} onOpenChange={o => !o && setFormOpen(false)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Beaker className="w-5 h-5 text-purple-700" />
-              {editItem ? 'Editar Preparado' : 'Nuevo Preparado'}
+              {editItem ? t('elaborador.edit_preparation') : t('elaborador.new_preparation')}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-2">
             <div>
-              <Label>Preparado *</Label>
+              <Label>{t('elaborador.select_preparation')} *</Label>
               <Select value={formPrep} onValueChange={setFormPrep}>
-                <SelectTrigger className="h-12"><SelectValue placeholder="Selecciona preparado" /></SelectTrigger>
+                <SelectTrigger className="h-12"><SelectValue placeholder={t('elaborador.select_preparation')} /></SelectTrigger>
                 <SelectContent>
                   {PREPARATIONS.map(p => (
                     <SelectItem key={p.value} value={p.value}>{p.emoji} {p.label}</SelectItem>
@@ -300,28 +297,28 @@ export default function Elaborador() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>Precio €</Label>
-                <Input type="number" step="0.01" min="0" value={formPrice} onChange={e => setFormPrice(e.target.value)} placeholder="Ej: 15.00" className="h-12" />
+                <Label>{t('elaborador.price')}</Label>
+                <Input type="number" step="0.01" min="0" value={formPrice} onChange={e => setFormPrice(e.target.value)} placeholder="15.00" className="h-12" />
               </div>
               <div>
-                <Label>Unidad de venta</Label>
+                <Label>{t('elaborador.sale_unit')}</Label>
                 <Select value={formUnit} onValueChange={setFormUnit}>
                   <SelectTrigger className="h-12"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="kg">por kg</SelectItem>
-                    <SelectItem value="g">por g</SelectItem>
-                    <SelectItem value="litro">por litro</SelectItem>
-                    <SelectItem value="unidad">por unidad</SelectItem>
+                    <SelectItem value="kg">{t('product_form.per_kg')}</SelectItem>
+                    <SelectItem value="g">{t('product_form.per_g')}</SelectItem>
+                    <SelectItem value="litro">{t('product_form.per_liter')}</SelectItem>
+                    <SelectItem value="unidad">{t('product_form.per_unit')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <div className="flex gap-3 pt-2">
               <Button variant="outline" className="flex-1 h-12" onClick={() => setFormOpen(false)}>
-                <X className="w-5 h-5 mr-2" /> Cancelar
+                <X className="w-5 h-5 mr-2" /> {t('common.cancel')}
               </Button>
               <Button variant="earth" className="flex-1 h-12" onClick={handleSavePrep} disabled={saving || !formPrep}>
-                {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-5 h-5 mr-2" /> Guardar</>}
+                {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-5 h-5 mr-2" /> {t('common.save')}</>}
               </Button>
             </div>
           </div>

@@ -1,56 +1,57 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { ShoppingBasket, Tractor, Beaker, ArrowRight } from "lucide-react";
 
-const roles = [
-  {
-    icon: ShoppingBasket,
-    title: "Consumidor",
-    description: "Encuentra alimentos biodinámicos cerca de ti. Conecta directamente con agricultores locales y apoya la agricultura consciente.",
-    features: ["Busca por producto o ubicación", "Guarda tus favoritos", "Contacta directamente"],
-    color: "primary" as const,
-    link: "/auth",
-  },
-  {
-    icon: Tractor,
-    title: "Agricultor / Ganadero",
-    description: "Comparte tu trabajo con consumidores que valoran la agricultura biodinámica. Sin comisiones, trato directo.",
-    features: ["Publica tus productos", "Gestiona variedades y precios", "Recibe pedidos por email"],
-    color: "accent" as const,
-    link: "/auth",
-  },
-  {
-    icon: Beaker,
-    title: "Elaborador de preparados",
-    description: "Ofrece preparados biodinámicos (500-508, María Thun) a agricultores que buscan practicar la biodinámica.",
-    features: ["Catálogo de preparados", "Precios y unidades flexibles", "Contacto directo"],
-    color: "leaf" as const,
-    link: "/auth",
-  },
-];
-
 const RolesSection = () => {
+  const { t } = useTranslation();
+
+  const roles = [
+    {
+      icon: ShoppingBasket,
+      titleKey: "home.role_consumer",
+      descKey: "home.role_consumer_desc",
+      features: ["home.role_consumer_f1", "home.role_consumer_f2", "home.role_consumer_f3"],
+      color: "primary" as const,
+      link: "/auth",
+    },
+    {
+      icon: Tractor,
+      titleKey: "home.role_farmer",
+      descKey: "home.role_farmer_desc",
+      features: ["home.role_farmer_f1", "home.role_farmer_f2", "home.role_farmer_f3"],
+      color: "accent" as const,
+      link: "/auth",
+    },
+    {
+      icon: Beaker,
+      titleKey: "home.role_elaborador",
+      descKey: "home.role_elaborador_desc",
+      features: ["home.role_elaborador_f1", "home.role_elaborador_f2", "home.role_elaborador_f3"],
+      color: "leaf" as const,
+      link: "/auth",
+    },
+  ];
+
   return (
     <section className="py-16 md:py-24 bg-gradient-natural">
       <div className="container">
         <div className="text-center mb-12 md:mb-16">
           <h2 className="font-display text-3xl md:text-4xl font-semibold text-foreground mb-4">
-            Elige tu camino
+            {t('home.roles_title')}
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Un mismo usuario puede actuar como consumidor, agricultor o elaborador 
-            según sus necesidades. Tú decides tu rol en cada momento.
+            {t('home.roles_subtitle')}
           </p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-6 md:gap-8">
           {roles.map((role, index) => (
             <div
-              key={role.title}
+              key={role.titleKey}
               className="group relative bg-card rounded-2xl border border-border overflow-hidden hover:shadow-elevated transition-all duration-300 animate-fade-up"
               style={{ animationDelay: `${index * 0.15}s` }}
             >
-              {/* Header */}
               <div className={`p-6 pb-4 ${
                 role.color === "primary" ? "bg-primary/5" :
                 role.color === "accent" ? "bg-accent/10" :
@@ -68,25 +69,24 @@ const RolesSection = () => {
                   }`} />
                 </div>
                 <h3 className="font-display text-2xl font-medium text-foreground">
-                  {role.title}
+                  {t(role.titleKey)}
                 </h3>
               </div>
 
-              {/* Content */}
               <div className="p-6 pt-4">
                 <p className="text-muted-foreground mb-6 leading-relaxed">
-                  {role.description}
+                  {t(role.descKey)}
                 </p>
 
                 <ul className="space-y-2 mb-6">
-                  {role.features.map((feature) => (
-                    <li key={feature} className="flex items-center gap-2 text-sm text-foreground">
+                  {role.features.map((featureKey) => (
+                    <li key={featureKey} className="flex items-center gap-2 text-sm text-foreground">
                       <div className={`w-1.5 h-1.5 rounded-full ${
                         role.color === "primary" ? "bg-primary" :
                         role.color === "accent" ? "bg-accent" :
                         "bg-leaf"
                       }`} />
-                      {feature}
+                      {t(featureKey)}
                     </li>
                   ))}
                 </ul>
@@ -96,7 +96,7 @@ const RolesSection = () => {
                     variant={role.color === "accent" ? "warm" : role.color === "primary" ? "earth" : "natural"} 
                     className="w-full group/btn"
                   >
-                    Comenzar
+                    {t('home.role_cta')}
                     <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
                   </Button>
                 </Link>

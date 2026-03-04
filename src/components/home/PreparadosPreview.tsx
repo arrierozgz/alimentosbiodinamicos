@@ -1,51 +1,50 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Info } from "lucide-react";
 
 const preparados = [
-  { id: "500", name: "Preparado 500", description: "Cuerno de estiércol - para la tierra" },
-  { id: "501", name: "Preparado 501", description: "Cuerno de sílice - para la planta" },
-  { id: "502", name: "Preparado 502", description: "Milenrama" },
-  { id: "503", name: "Preparado 503", description: "Manzanilla" },
-  { id: "504", name: "Preparado 504", description: "Ortiga" },
-  { id: "505", name: "Preparado 505", description: "Corteza de roble" },
-  { id: "506", name: "Preparado 506", description: "Diente de león" },
-  { id: "507", name: "Preparado 507", description: "Valeriana" },
-  { id: "508", name: "Preparado 508", description: "Cola de caballo" },
-  { id: "maria-thun", name: "María Thun", description: "Preparado compuesto" },
+  { id: "500", nameKey: "preparations_page.prep_500_name" },
+  { id: "501", nameKey: "preparations_page.prep_501_name" },
+  { id: "502", nameKey: "preparations_page.prep_502_name" },
+  { id: "503", nameKey: "preparations_page.prep_503_name" },
+  { id: "504", nameKey: "preparations_page.prep_504_name" },
+  { id: "505", nameKey: "preparations_page.prep_505_name" },
+  { id: "506", nameKey: "preparations_page.prep_506_name" },
+  { id: "507", nameKey: "preparations_page.prep_507_name" },
+  { id: "508", nameKey: "preparations_page.prep_508_name" },
+  { id: "maria-thun", nameKey: "preparations_page.prep_maria_thun_name" },
 ];
 
 const PreparadosPreview = () => {
+  const { t } = useTranslation();
+
   return (
     <section className="py-16 md:py-24 bg-background">
       <div className="container">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Content */}
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-leaf/10 text-leaf text-sm font-medium mb-4">
               <Info className="h-4 w-4" />
-              Preparados biodinámicos
+              {t('home.preps_badge')}
             </div>
             
             <h2 className="font-display text-3xl md:text-4xl font-semibold text-foreground mb-4">
-              El corazón de la agricultura biodinámica
+              {t('home.preps_title')}
             </h2>
             
             <p className="text-lg text-muted-foreground leading-relaxed mb-6">
-              Los preparados biodinámicos son sustancias especiales que vitalizan 
-              el suelo y las plantas. Conectamos a agricultores con elaboradores 
-              para que puedas acceder a estos preparados de forma directa.
+              {t('home.preps_description')}
             </p>
 
             <Link to="/preparados">
               <Button variant="natural" className="group">
-                Ver todos los preparados
+                {t('home.preps_cta')}
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Button>
             </Link>
           </div>
 
-          {/* Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {preparados.slice(0, 9).map((prep, index) => (
               <div
@@ -57,7 +56,7 @@ const PreparadosPreview = () => {
                   {prep.id === "maria-thun" ? "MT" : prep.id}
                 </div>
                 <p className="font-medium text-foreground text-sm leading-tight">
-                  {prep.name}
+                  {t(prep.nameKey)}
                 </p>
               </div>
             ))}

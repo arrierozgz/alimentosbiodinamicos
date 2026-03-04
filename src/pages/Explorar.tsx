@@ -310,11 +310,11 @@ export default function Explorar() {
                   <div>
                     <label className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
                       <MapPin className="w-4 h-4 text-blue-600" />
-                      Ubicación
+                      {t('explore.location')}
                     </label>
                     <Input
                       type="text"
-                      placeholder="Ciudad, provincia o CP..."
+                      placeholder={t('explore.location_placeholder')}
                       value={filterLocation}
                       onChange={(e) => setFilterLocation(e.target.value)}
                       className="h-11 text-base rounded-lg"
@@ -343,7 +343,7 @@ export default function Explorar() {
                   <div>
                     <label className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
                       <ShoppingBasket className="w-4 h-4 text-green-600" />
-                      Producto
+                      {t("explore.product")}
                     </label>
                     <Select
                       value={filterCategory}
@@ -354,10 +354,10 @@ export default function Explorar() {
                       }}
                     >
                       <SelectTrigger className="h-11 text-base rounded-lg">
-                        <SelectValue placeholder="Todos los productos" />
+                        <SelectValue placeholder={t('explore.all_products')} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="__all__">Todos</SelectItem>
+                        <SelectItem value="__all__">{t('common.all')}</SelectItem>
                         {PRODUCT_CATEGORIES.map((cat) => (
                           <SelectItem key={cat} value={cat}>
                             {PRODUCT_CATEGORY_EMOJIS[cat] || ''} {cat}
@@ -371,7 +371,7 @@ export default function Explorar() {
                   <div>
                     <label className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
                       <Leaf className="w-4 h-4 text-primary" />
-                      Variedad
+                      {t("explore.variety")}
                     </label>
                     <Select
                       value={filterVariety}
@@ -382,10 +382,10 @@ export default function Explorar() {
                       disabled={availableVarieties.length === 0}
                     >
                       <SelectTrigger className="h-11 text-base rounded-lg">
-                        <SelectValue placeholder={availableVarieties.length ? 'Todas las variedades' : 'Sin variedades'} />
+                        <SelectValue placeholder={availableVarieties.length ? t('explore.all_varieties') : t('explore.no_varieties')} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="__all__">Todas</SelectItem>
+                        <SelectItem value="__all__">{t("common.all")}</SelectItem>
                         {availableVarieties.map((v) => (
                           <SelectItem key={v} value={v}>🌱 {v}</SelectItem>
                         ))}
@@ -397,7 +397,7 @@ export default function Explorar() {
                   <div>
                     <label className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
                       <Package className="w-4 h-4 text-amber-600" />
-                      Envase
+                      {t("explore.packaging")}
                     </label>
                     <Select
                       value={filterPackaging}
@@ -405,10 +405,10 @@ export default function Explorar() {
                       disabled={availablePackaging.length === 0}
                     >
                       <SelectTrigger className="h-11 text-base rounded-lg">
-                        <SelectValue placeholder={availablePackaging.length ? 'Todos los envases' : 'Sin envases'} />
+                        <SelectValue placeholder={availablePackaging.length ? t('explore.all_packaging') : t('explore.no_packaging')} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="__all__">Todos</SelectItem>
+                        <SelectItem value="__all__">{t('common.all')}</SelectItem>
                         {availablePackaging.map((p) => (
                           <SelectItem key={p} value={p}>📦 {p}</SelectItem>
                         ))}
@@ -420,17 +420,17 @@ export default function Explorar() {
                   <div>
                     <label className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
                       <Award className="w-4 h-4 text-amber-500" />
-                      Certificación
+                      {t("explore.certification")}
                     </label>
                     <Select
                       value={filterCertification}
                       onValueChange={(v) => setFilterCertification(v === '__all__' ? '' : v)}
                     >
                       <SelectTrigger className="h-11 text-base rounded-lg">
-                        <SelectValue placeholder="Todas" />
+                        <SelectValue placeholder={t("explore.all_certs")} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="__all__">Todas</SelectItem>
+                        <SelectItem value="__all__">{t("common.all")}</SelectItem>
                         {CERTIFICATION_TYPES.map((cert) => (
                           <SelectItem key={cert.value} value={cert.value}>
                             {cert.emoji} {cert.label}
@@ -444,7 +444,7 @@ export default function Explorar() {
                 {hasActiveFilters && (
                   <div className="mt-3 pt-3 border-t border-border flex justify-end">
                     <Button variant="ghost" size="sm" onClick={clearFilters} className="text-destructive">
-                      <X className="w-4 h-4 mr-1" /> Limpiar filtros
+                      <X className="w-4 h-4 mr-1" /> {t("explore.clear_filters")}
                     </Button>
                   </div>
                 )}
@@ -472,19 +472,21 @@ export default function Explorar() {
                 </h2>
                 <p className="text-muted-foreground text-lg mb-6">
                   {hasActiveFilters || searchTerm
-                    ? 'Prueba con otra búsqueda o quita los filtros'
-                    : 'Sé el primero en compartir tus productos'}
+                    ? t('explore.no_results_hint')
+                    : t('explore.be_first')}
                 </p>
                 {hasActiveFilters && (
                   <Button variant="outline" onClick={clearFilters}>
-                    <X className="w-4 h-4 mr-2" /> Limpiar filtros
+                    <X className="w-4 h-4 mr-2" /> {t("explore.clear_filters")}
                   </Button>
                 )}
               </div>
             ) : (
               <>
                 <p className="text-muted-foreground mb-6">
-                  {filteredResults.farmers.length} productor{filteredResults.farmers.length !== 1 ? 'es' : ''} encontrado{filteredResults.farmers.length !== 1 ? 's' : ''}
+                  {filteredResults.farmers.length === 1
+                    ? t('explore.producers_found', { count: 1 })
+                    : t('explore.producers_found_plural', { count: filteredResults.farmers.length })}
                 </p>
 
                 <div className="space-y-4">
@@ -518,7 +520,7 @@ export default function Explorar() {
                               )}
                             </div>
                             <span className="text-xs text-muted-foreground">
-                              {isExpanded ? '▲ cerrar' : '▼ ver más'}
+                              {isExpanded ? t('explore.see_less') : t('explore.see_more')}
                             </span>
                           </div>
 
@@ -559,7 +561,7 @@ export default function Explorar() {
                               {/* Products with variations */}
                               {farmerProducts.length > 0 && (
                                 <div>
-                                  <h4 className="text-sm font-semibold mb-2">Productos disponibles:</h4>
+                                  <h4 className="text-sm font-semibold mb-2">{t('explore.available_products')}</h4>
                                   <div className="space-y-2">
                                     {farmerProducts.map(product => (
                                       <div key={product.id} className="bg-muted/50 rounded-lg p-3">
@@ -598,7 +600,7 @@ export default function Explorar() {
                               {/* Contact info */}
                               <div className="bg-primary/5 rounded-lg p-4">
                                 <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
-                                  <User className="w-4 h-4" /> Contacto
+                                  <User className="w-4 h-4" /> {t('explore.contact')}
                                 </h4>
                                 <div className="space-y-1.5 text-sm">
                                   {contact?.contact_email && (
@@ -622,7 +624,7 @@ export default function Explorar() {
                                     </a>
                                   )}
                                   {!contact?.contact_email && !contact?.contact_phone && !farmer.contact_web && (
-                                    <p className="text-muted-foreground text-xs">Este productor no ha publicado datos de contacto todavía.</p>
+                                    <p className="text-muted-foreground text-xs">{t('explore.no_contact')}</p>
                                   )}
                                 </div>
                                 {user && user.id !== farmer.user_id && (
@@ -630,7 +632,7 @@ export default function Explorar() {
                                     variant="earth" size="sm" className="w-full mt-3"
                                     onClick={(e) => { e.stopPropagation(); navigate(`/mensajes?con=${farmer.user_id}`); }}
                                   >
-                                    <MessageCircle className="w-4 h-4 mr-2" /> Enviar mensaje
+                                    <MessageCircle className="w-4 h-4 mr-2" /> {t('explore.send_message')}
                                   </Button>
                                 )}
                                 {!user && (
@@ -638,7 +640,7 @@ export default function Explorar() {
                                     variant="outline" size="sm" className="w-full mt-3"
                                     onClick={(e) => { e.stopPropagation(); navigate('/auth'); }}
                                   >
-                                    Inicia sesión para contactar
+                                    {t('explore.login_to_contact')}
                                   </Button>
                                 )}
                               </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -47,18 +48,23 @@ async function apiFetch(path: string, options: RequestInit = {}) {
   });
 }
 
-function timeAgo(dateStr: string): string {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'ahora';
-  if (mins < 60) return `${mins}min`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h`;
-  const days = Math.floor(hours / 24);
-  return `${days}d`;
+function useTimeAgo() {
+  const { t } = useTranslation();
+  return (dateStr: string): string => {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return t('messages.now');
+    if (mins < 60) return `${mins}min`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h`;
+    const days = Math.floor(hours / 24);
+    return `${days}d`;
+  };
 }
 
 export default function Mensajes() {
+  const { t } = useTranslation();
+  const timeAgo = useTimeAgo();
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -87,12 +93,10 @@ export default function Mensajes() {
     }
   }, [chatWith, user]);
 
-  // Auto-scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Poll for new messages when in a chat
   useEffect(() => {
     if (activeChatUser) {
       pollRef.current = setInterval(() => fetchMessages(activeChatUser.other_user_id), 5000);
@@ -119,10 +123,8 @@ export default function Mensajes() {
   };
 
   const openChat = async (userId: string) => {
-    // Find or create conversation entry
     let convo = conversations.find(c => c.other_user_id === userId);
     if (!convo) {
-      // Fetch user info
       try {
         const res = await apiFetch(`/api/data/farmer_profiles_public?user_id=eq.${userId}&select=user_id,farm_name`);
         if (res.ok) {
@@ -187,7 +189,6 @@ export default function Mensajes() {
   if (activeChatUser) {
     return (
       <div className="min-h-screen flex flex-col bg-background">
-        {/* Chat header */}
         <header className="bg-card border-b border-border sticky top-0 z-10 px-4 py-3">
           <div className="container max-w-2xl mx-auto flex items-center gap-3">
             <Button variant="ghost" size="icon" onClick={() => { setActiveChatUser(null); fetchConversations(); navigate('/mensajes', { replace: true }); }}>
@@ -204,13 +205,12 @@ export default function Mensajes() {
           </div>
         </header>
 
-        {/* Messages */}
         <main className="flex-1 overflow-y-auto px-4 py-4">
           <div className="container max-w-2xl mx-auto space-y-3">
             {messages.length === 0 && (
               <div className="text-center py-12 text-muted-foreground">
                 <MessageCircle className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                <p>Envía el primer mensaje</p>
+                <p>{t('messages.send_first')}</p>
               </div>
             )}
             {messages.map((msg) => {
@@ -234,14 +234,13 @@ export default function Mensajes() {
           </div>
         </main>
 
-        {/* Input */}
         <footer className="bg-card border-t border-border px-4 py-3 sticky bottom-0">
           <div className="container max-w-2xl mx-auto flex gap-2">
             <Input
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Escribe un mensaje..."
+              placeholder={t('messages.input_placeholder')}
               className="h-12 text-base rounded-full px-5"
               autoFocus
             />
@@ -269,10 +268,10 @@ export default function Mensajes() {
           <div className="container max-w-2xl">
             <h1 className="font-display text-3xl font-semibold text-center mb-2">
               <MessageCircle className="w-8 h-8 inline-block mr-2 text-primary" />
-              Mensajes
+              {t('messages.title')}
             </h1>
             <p className="text-center text-muted-foreground mb-8">
-              Comunícate directamente con productores y consumidores
+              {t('messages.subtitle')}
             </p>
 
             {loading ? (
@@ -280,12 +279,12 @@ export default function Mensajes() {
             ) : conversations.length === 0 ? (
               <div className="text-center py-12">
                 <MessageCircle className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-30" />
-                <h3 className="font-display text-xl font-semibold mb-2">Sin conversaciones</h3>
+                <h3 className="font-display text-xl font-semibold mb-2">{t('messages.no_conversations')}</h3>
                 <p className="text-muted-foreground mb-6">
-                  Busca un productor en el listín y envíale un mensaje
+                  {t('messages.no_conversations_hint')}
                 </p>
                 <Button variant="earth" onClick={() => navigate('/explorar')}>
-                  Explorar productores
+                  {t('messages.explore_producers')}
                 </Button>
               </div>
             ) : (

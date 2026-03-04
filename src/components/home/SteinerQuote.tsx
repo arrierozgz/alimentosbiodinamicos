@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp, Sparkles } from "lucide-react";
 
 const SteinerQuote = () => {
+  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
@@ -11,25 +13,24 @@ const SteinerQuote = () => {
         <div className="text-center">
           <div className="inline-flex items-center gap-2 text-primary mb-4">
             <Sparkles className="h-5 w-5" />
-            <span className="text-sm font-medium uppercase tracking-wider">Inspiración</span>
+            <span className="text-sm font-medium uppercase tracking-wider">{t('home.steiner_inspiration')}</span>
           </div>
           
           <h2 className="font-display text-2xl md:text-3xl font-semibold text-foreground mb-6">
-            Gracias, Rudolf Steiner
+            {t('home.steiner_title')}
           </h2>
           
           <blockquote className="text-lg md:text-xl text-muted-foreground leading-relaxed italic">
-            "Esto es un problema de nutrición. La nutrición tal como hoy se entiende…"
+            {t('home.steiner_quote_1')}
           </blockquote>
 
           {isExpanded && (
             <div className="mt-6 animate-fade-up">
               <blockquote className="text-lg md:text-xl text-muted-foreground leading-relaxed italic">
-                "…no suministra la fuerza necesaria para manifestar el espíritu en la vida física.
+                {t('home.steiner_quote_2')}
               </blockquote>
               <p className="mt-6 text-foreground leading-relaxed">
-                La nutrición no es solo material, sino un puente metabólico-rítmico hacia el espíritu, 
-                debilitado en lo convencional y restaurado en lo biodinámico.
+                {t('home.steiner_text')}
               </p>
             </div>
           )}
@@ -42,11 +43,11 @@ const SteinerQuote = () => {
           >
             {isExpanded ? (
               <>
-                Cerrar <ChevronUp className="h-4 w-4 ml-1" />
+                {t('home.steiner_close')} <ChevronUp className="h-4 w-4 ml-1" />
               </>
             ) : (
               <>
-                Leer más <ChevronDown className="h-4 w-4 ml-1" />
+                {t('home.steiner_read_more')} <ChevronDown className="h-4 w-4 ml-1" />
               </>
             )}
           </Button>

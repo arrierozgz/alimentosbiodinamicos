@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -38,6 +39,7 @@ interface ContactDetails {
 }
 
 export default function Agricultor() {
+  const { t } = useTranslation();
   const { user, loading: authLoading, signOut } = useAuth();
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
@@ -65,7 +67,6 @@ export default function Agricultor() {
 
   const fetchAll = async () => {
     try {
-      // Products + variations
       const { data: prods } = await supabase.from('products').select('*').eq('user_id', user?.id);
       const productIds = (prods || []).map((p: any) => p.id);
 
@@ -82,7 +83,6 @@ export default function Agricultor() {
       }));
       setProducts(enriched);
 
-      // Profile
       const { data: profiles } = await supabase.from('farmer_profiles' as any).select('*').eq('user_id', user?.id);
       if (profiles && profiles.length > 0) {
         const p = profiles[0] as any;
@@ -95,13 +95,11 @@ export default function Agricultor() {
           contact_web: p.contact_web || '',
           presentation: p.presentation || '',
         });
-        // If no farm_name set, prompt to fill profile
         if (!p.farm_name) setShowProfile(true);
       } else {
-        setShowProfile(true); // New user, show profile form
+        setShowProfile(true);
       }
 
-      // Contact
       const { data: contacts } = await supabase.from('farmer_contact_details' as any).select('*').eq('user_id', user?.id);
       if (contacts && contacts.length > 0) {
         const c = contacts[0] as any;
@@ -118,12 +116,11 @@ export default function Agricultor() {
 
   const handleSaveProfile = async () => {
     if (!profile.farm_name.trim()) {
-      toast.error('El nombre es obligatorio');
+      toast.error(t('farmer_panel.name_required'));
       return;
     }
     setSavingProfile(true);
     try {
-      // Upsert profile
       const profileData = {
         user_id: user?.id,
         farm_name: profile.farm_name,
@@ -143,18 +140,17 @@ export default function Agricultor() {
         if (data && data.length > 0) setProfile(prev => ({ ...prev, id: (data[0] as any).id }));
       }
 
-      // Upsert contact
       await supabase.from('farmer_contact_details' as any).upsert({
         user_id: user?.id,
         contact_email: contact.contact_email || null,
         contact_phone: contact.contact_phone || null,
       }).select();
 
-      toast.success('Perfil guardado');
+      toast.success(t('farmer_panel.profile_saved'));
       setShowProfile(false);
     } catch (e) {
       console.error('Error saving profile:', e);
-      toast.error('Error al guardar perfil');
+      toast.error('Error');
     } finally {
       setSavingProfile(false);
     }
@@ -177,15 +173,13 @@ export default function Agricultor() {
       if (editingProduct?.id) {
         await supabase.from('products').update(productPayload).eq('id', editingProduct.id);
         productId = editingProduct.id;
-        // Delete old variations
         await supabase.from('product_variations').delete().eq('product_id', productId);
       } else {
         const { data: inserted } = await supabase.from('products').insert(productPayload).select();
-        if (!inserted || inserted.length === 0) throw new Error('No se pudo crear el producto');
+        if (!inserted || inserted.length === 0) throw new Error('Error');
         productId = (inserted[0] as any).id;
       }
 
-      // Insert variations
       const variations = data.variations
         .filter(v => v.variety || v.packaging || v.net_price)
         .map(v => ({
@@ -200,27 +194,27 @@ export default function Agricultor() {
         await supabase.from('product_variations').insert(variations).select();
       }
 
-      toast.success(editingProduct ? 'Producto actualizado' : 'Producto creado');
+      toast.success(editingProduct ? t('farmer_panel.product_updated') : t('farmer_panel.product_created'));
       setFormOpen(false);
       setEditingProduct(null);
       fetchAll();
     } catch (e) {
       console.error('Error:', e);
-      toast.error('Error al guardar');
+      toast.error('Error');
     } finally {
       setSaving(false);
     }
   };
 
   const handleDeleteProduct = async (id: string) => {
-    if (!confirm('¿Eliminar este producto?')) return;
+    if (!confirm(t('farmer_panel.confirm_delete_product'))) return;
     try {
       await supabase.from('product_variations').delete().eq('product_id', id);
       await supabase.from('products').delete().eq('id', id);
       setProducts(products.filter(p => p.id !== id));
-      toast.success('Producto eliminado');
+      toast.success(t('farmer_panel.product_deleted'));
     } catch (e) {
-      toast.error('Error al eliminar');
+      toast.error('Error');
     }
   };
 
@@ -263,7 +257,6 @@ export default function Agricultor() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="bg-card border-b border-border sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -271,7 +264,7 @@ export default function Agricultor() {
               <Leaf className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <h1 className="font-display text-lg font-semibold">{profile.farm_name || 'Mi Huerta'}</h1>
+              <h1 className="font-display text-lg font-semibold">{profile.farm_name || t('farmer_panel.my_garden')}</h1>
               <p className="text-xs text-muted-foreground">
                 {profile.approximate_location && `📍 ${profile.approximate_location}`}
                 {profile.province && `, ${profile.province}`}
@@ -280,7 +273,7 @@ export default function Agricultor() {
           </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={() => setShowProfile(!showProfile)}>
-              <Edit className="w-4 h-4 mr-1" /> Perfil
+              <Edit className="w-4 h-4 mr-1" /> {t('farmer_panel.profile_btn')}
             </Button>
             <Button variant="ghost" size="icon" onClick={async () => { await signOut(); navigate('/'); }}>
               <LogOut className="w-5 h-5" />
@@ -290,41 +283,40 @@ export default function Agricultor() {
       </header>
 
       <main className="container mx-auto px-4 py-6 max-w-2xl">
-        {/* Profile Form (collapsible) */}
         {showProfile && (
           <Card className="p-5 mb-6 animate-fade-in">
-            <h2 className="font-display text-lg font-semibold mb-4">📋 Mi perfil de productor</h2>
+            <h2 className="font-display text-lg font-semibold mb-4">{t('farmer_panel.profile_title')}</h2>
             <div className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <Label>Nombre / Finca *</Label>
+                  <Label>{t('farmer_panel.farm_name')} *</Label>
                   <Input
                     value={profile.farm_name}
                     onChange={(e) => setProfile({ ...profile, farm_name: e.target.value })}
-                    placeholder="Ej: Finca El Olivo"
+                    placeholder={t('farmer_panel.farm_name_placeholder')}
                     className="h-11"
                   />
                 </div>
                 <div>
-                  <Label>Localidad</Label>
+                  <Label>{t('farmer_panel.location')}</Label>
                   <Input
                     value={profile.approximate_location}
                     onChange={(e) => setProfile({ ...profile, approximate_location: e.target.value })}
-                    placeholder="Ej: Fabara"
+                    placeholder={t('farmer_panel.location_placeholder')}
                     className="h-11"
                   />
                 </div>
                 <div>
-                  <Label>Provincia</Label>
+                  <Label>{t('farmer_panel.province')}</Label>
                   <Input
                     value={profile.province}
                     onChange={(e) => setProfile({ ...profile, province: e.target.value })}
-                    placeholder="Ej: Zaragoza"
+                    placeholder={t('farmer_panel.province_placeholder')}
                     className="h-11"
                   />
                 </div>
                 <div>
-                  <Label>Código Postal</Label>
+                  <Label>{t('farmer_panel.postal_code')}</Label>
                   <Input
                     value={profile.postal_code}
                     onChange={(e) => setProfile({ ...profile, postal_code: e.target.value })}
@@ -335,19 +327,19 @@ export default function Agricultor() {
               </div>
 
               <div>
-                <Label>Presentación (opcional)</Label>
+                <Label>{t('farmer_panel.presentation')} ({t('common.optional')})</Label>
                 <Input
                   value={profile.presentation}
                   onChange={(e) => setProfile({ ...profile, presentation: e.target.value })}
-                  placeholder="Breve descripción de tu actividad..."
+                  placeholder={t('farmer_panel.presentation_placeholder')}
                   className="h-11"
                 />
               </div>
 
-              <h3 className="font-medium text-sm mt-4 mb-2">📞 Contacto (visible para consumidores)</h3>
+              <h3 className="font-medium text-sm mt-4 mb-2">{t('farmer_panel.contact_title')}</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <Label>Email de contacto</Label>
+                  <Label>{t('farmer_panel.contact_email')}</Label>
                   <Input
                     type="email"
                     value={contact.contact_email}
@@ -357,7 +349,7 @@ export default function Agricultor() {
                   />
                 </div>
                 <div>
-                  <Label>Teléfono</Label>
+                  <Label>{t('farmer_panel.contact_phone')}</Label>
                   <Input
                     type="tel"
                     value={contact.contact_phone}
@@ -368,7 +360,7 @@ export default function Agricultor() {
                 </div>
               </div>
               <div>
-                <Label>Web (opcional)</Label>
+                <Label>{t('farmer_panel.contact_web')} ({t('common.optional')})</Label>
                 <Input
                   value={profile.contact_web}
                   onChange={(e) => setProfile({ ...profile, contact_web: e.target.value })}
@@ -378,28 +370,26 @@ export default function Agricultor() {
               </div>
 
               <Button variant="earth" onClick={handleSaveProfile} disabled={savingProfile} className="w-full h-12">
-                {savingProfile ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-5 h-5 mr-2" /> Guardar perfil</>}
+                {savingProfile ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-5 h-5 mr-2" /> {t('farmer_panel.save_profile')}</>}
               </Button>
             </div>
           </Card>
         )}
 
-        {/* Add Product */}
         <Button
           variant="earth" size="xl" className="w-full mb-6 h-14 text-lg gap-3"
           onClick={() => { setEditingProduct(null); setFormOpen(true); }}
         >
-          <Plus className="w-6 h-6" /> Añadir Producto
+          <Plus className="w-6 h-6" /> {t('farmer_panel.add_product')}
         </Button>
 
-        {/* Products List */}
         {products.length === 0 ? (
           <div className="text-center py-12">
             <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
               <Leaf className="w-10 h-10 text-muted-foreground" />
             </div>
-            <h3 className="font-display text-xl font-semibold mb-2">Sin productos aún</h3>
-            <p className="text-muted-foreground">Añade tu primer producto</p>
+            <h3 className="font-display text-xl font-semibold mb-2">{t('farmer_panel.no_products')}</h3>
+            <p className="text-muted-foreground">{t('farmer_panel.add_first')}</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -431,7 +421,6 @@ export default function Agricultor() {
                   </div>
                 </div>
 
-                {/* Certifications */}
                 {product.certifications?.length > 0 && (
                   <div className="flex flex-wrap gap-1 mb-2">
                     {product.certifications.map(cert => (
@@ -440,7 +429,6 @@ export default function Agricultor() {
                   </div>
                 )}
 
-                {/* Variations */}
                 {product.variations && product.variations.length > 0 && (
                   <div className="space-y-1 mt-2">
                     {product.variations.map(v => (

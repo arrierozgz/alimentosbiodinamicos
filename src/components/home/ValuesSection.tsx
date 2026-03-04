@@ -1,46 +1,32 @@
+import { useTranslation } from "react-i18next";
 import { Heart, Users, Sprout, ShieldCheck } from "lucide-react";
 
-const values = [
-  {
-    icon: Heart,
-    title: "Sin ánimo de lucro",
-    description: "No cobramos comisiones ni intermediamos económicamente. El trato es siempre directo entre personas.",
-  },
-  {
-    icon: Users,
-    title: "Conexión directa",
-    description: "Facilitamos el encuentro entre consumidores y productores. Tú decides con quién tratar y cómo.",
-  },
-  {
-    icon: Sprout,
-    title: "Agricultura biodinámica",
-    description: "Apoyamos prácticas agrícolas que respetan la tierra, los ciclos naturales y la vida en su conjunto.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Transparencia total",
-    description: "Conoce el origen de tus alimentos. Cada productor comparte libremente su historia y métodos.",
-  },
-];
-
 const ValuesSection = () => {
+  const { t } = useTranslation();
+
+  const values = [
+    { icon: Heart, titleKey: 'home.value_nonprofit_title', descKey: 'home.value_nonprofit_desc' },
+    { icon: Users, titleKey: 'home.value_direct_title', descKey: 'home.value_direct_desc' },
+    { icon: Sprout, titleKey: 'home.value_biodynamic_title', descKey: 'home.value_biodynamic_desc' },
+    { icon: ShieldCheck, titleKey: 'home.value_transparency_title', descKey: 'home.value_transparency_desc' },
+  ];
+
   return (
     <section className="py-16 md:py-24 bg-background">
       <div className="container">
         <div className="text-center mb-12 md:mb-16">
           <h2 className="font-display text-3xl md:text-4xl font-semibold text-foreground mb-4">
-            Nuestros principios
+            {t('home.values_title')}
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Una plataforma construida sobre valores que priorizan a las personas 
-            y la agricultura consciente por encima de todo.
+            {t('home.values_subtitle')}
           </p>
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
           {values.map((value, index) => (
             <div
-              key={value.title}
+              key={value.titleKey}
               className="group p-6 rounded-2xl bg-card border border-border hover:border-primary/30 hover:shadow-card transition-all duration-300 animate-fade-up"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
@@ -48,10 +34,10 @@ const ValuesSection = () => {
                 <value.icon className="h-6 w-6 text-primary" />
               </div>
               <h3 className="font-display text-xl font-medium text-foreground mb-2">
-                {value.title}
+                {t(value.titleKey)}
               </h3>
               <p className="text-muted-foreground leading-relaxed">
-                {value.description}
+                {t(value.descKey)}
               </p>
             </div>
           ))}

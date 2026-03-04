@@ -16,19 +16,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const roleLabels: Record<string, string> = {
-  consumidor: "Consumidor",
-  agricultor: "Agricultor",
-  ganadero: "Ganadero",
-  elaborador: "Elaborador",
-};
-
 const Header = () => {
   const { t } = useTranslation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
   const { roles, activeRole, setActiveRole } = useUserRoles();
   const { exporting, exportData, exportProductsCSV } = useDataExport();
+
+  const roleLabels: Record<string, string> = {
+    consumidor: t('home.role_consumer'),
+    agricultor: t('home.role_farmer'),
+    ganadero: t('home.role_farmer'),
+    elaborador: t('home.role_elaborador'),
+  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -60,7 +60,7 @@ const Header = () => {
           <Link to="/explorar">
             <Button variant="ghost" className="gap-2">
               <Search className="h-4 w-4" />
-              Explorar
+              {t("nav.explore")}
             </Button>
           </Link>
           <Link to="/mapa">
@@ -95,14 +95,14 @@ const Header = () => {
               <DropdownMenuTrigger asChild>
                 <Button variant="natural" className="gap-2">
                   <User className="h-4 w-4" />
-                  {activeRole ? roleLabels[activeRole] : 'Mi cuenta'}
+                  {activeRole ? roleLabels[activeRole] : t('common.my_account')}
                   <ChevronDown className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 {roles.length > 1 && (
                   <>
-                    <DropdownMenuLabel>Cambiar rol activo</DropdownMenuLabel>
+                    <DropdownMenuLabel>{t('common.switch_role')}</DropdownMenuLabel>
                     {roles.map((role) => (
                       <DropdownMenuItem
                         key={role}
@@ -111,7 +111,7 @@ const Header = () => {
                       >
                         {roleLabels[role]}
                         {activeRole === role && (
-                          <span className="ml-auto text-xs text-primary">Activo</span>
+                          <span className="ml-auto text-xs text-primary">{t('common.active')}</span>
                         )}
                       </DropdownMenuItem>
                     ))}
@@ -119,34 +119,34 @@ const Header = () => {
                   </>
                 )}
                 <DropdownMenuItem asChild>
-                  <Link to="/mi-perfil">Mi perfil</Link>
+                  <Link to="/mi-perfil">{t('common.my_profile')}</Link>
                 </DropdownMenuItem>
                 {(activeRole === 'agricultor' || activeRole === 'ganadero') && (
                   <DropdownMenuItem asChild>
-                    <Link to="/agricultor">Mis productos</Link>
+                    <Link to="/agricultor">{t('common.my_products')}</Link>
                   </DropdownMenuItem>
                 )}
                 {activeRole === 'elaborador' && (
                   <DropdownMenuItem asChild>
-                    <Link to="/elaborador">Mis preparados</Link>
+                    <Link to="/elaborador">{t('common.my_preparations_link')}</Link>
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />
-                <DropdownMenuLabel>Exportar datos</DropdownMenuLabel>
+                <DropdownMenuLabel>{t('common.export_data')}</DropdownMenuLabel>
                 <DropdownMenuItem onClick={() => exportData()} disabled={exporting}>
                   <Download className="h-4 w-4 mr-2" />
-                  Todo (JSON)
+                  {t('common.all_json')}
                 </DropdownMenuItem>
                 {showProductExport && (
                   <DropdownMenuItem onClick={exportProductsCSV} disabled={exporting}>
                     <Download className="h-4 w-4 mr-2" />
-                    Productos (CSV)
+                    {t('common.products_csv')}
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
                   <LogOut className="h-4 w-4 mr-2" />
-                  Cerrar sesión
+                  {t('common.logout')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -155,7 +155,7 @@ const Header = () => {
               <Link to="/auth">
                 <Button variant="natural" className="gap-2">
                   <User className="h-4 w-4" />
-                  Acceder
+                  {t('common.access')}
                 </Button>
               </Link>
               <Link to="/auth">
@@ -171,7 +171,7 @@ const Header = () => {
             <Link to="/auth">
               <Button variant="earth" size="sm" className="gap-1.5">
                 <User className="h-4 w-4" />
-                Acceder
+                {t('common.access')}
               </Button>
             </Link>
           )}
@@ -192,29 +192,29 @@ const Header = () => {
             <Link to="/explorar" onClick={() => setIsMenuOpen(false)}>
               <Button variant="ghost" className="w-full justify-start gap-2">
                 <Search className="h-4 w-4" />
-                Explorar
+                {t("nav.explore")}
               </Button>
             </Link>
             <Link to="/mapa" onClick={() => setIsMenuOpen(false)}>
               <Button variant="ghost" className="w-full justify-start">
-                Mapa
+                {t("nav.map")}
               </Button>
             </Link>
             <Link to="/preparados" onClick={() => setIsMenuOpen(false)}>
               <Button variant="ghost" className="w-full justify-start">
-                Preparados
+                {t("nav.preparations")}
               </Button>
             </Link>
             <Link to="/sobre-nosotros" onClick={() => setIsMenuOpen(false)}>
               <Button variant="ghost" className="w-full justify-start">
-                Sobre Nosotros
+                {t("nav.about")}
               </Button>
             </Link>
             <div className="border-t border-border my-2" />
             <Link to="/favoritos" onClick={() => setIsMenuOpen(false)}>
               <Button variant="ghost" className="w-full justify-start gap-2">
                 <Heart className="h-4 w-4" />
-                Favoritos
+                {t('common.favorites')}
               </Button>
             </Link>
             
@@ -222,7 +222,7 @@ const Header = () => {
               <>
                 {roles.length > 1 && (
                   <div className="px-3 py-2">
-                    <p className="text-sm text-muted-foreground mb-2">Rol activo:</p>
+                    <p className="text-sm text-muted-foreground mb-2">{t('common.active_role')}</p>
                     <div className="flex flex-wrap gap-2">
                       {roles.map((role) => (
                         <Button
@@ -241,25 +241,25 @@ const Header = () => {
                 <Link to="/mi-perfil" onClick={() => setIsMenuOpen(false)}>
                   <Button variant="ghost" className="w-full justify-start gap-2">
                     <User className="h-4 w-4" />
-                    Mi perfil
+                    {t('common.my_profile')}
                   </Button>
                 </Link>
                 {(activeRole === 'agricultor' || activeRole === 'ganadero') && (
                   <Link to="/agricultor" onClick={() => setIsMenuOpen(false)}>
                     <Button variant="ghost" className="w-full justify-start">
-                      Mis productos
+                      {t('common.my_products')}
                     </Button>
                   </Link>
                 )}
                 {activeRole === 'elaborador' && (
                   <Link to="/elaborador" onClick={() => setIsMenuOpen(false)}>
                     <Button variant="ghost" className="w-full justify-start">
-                      Mis preparados
+                      {t('common.my_preparations_link')}
                     </Button>
                   </Link>
                 )}
                 <div className="border-t border-border my-2" />
-                <p className="px-3 py-1 text-sm text-muted-foreground">Exportar datos</p>
+                <p className="px-3 py-1 text-sm text-muted-foreground">{t('common.export_data')}</p>
                 <Button 
                   variant="ghost" 
                   className="w-full justify-start gap-2"
@@ -267,7 +267,7 @@ const Header = () => {
                   disabled={exporting}
                 >
                   <Download className="h-4 w-4" />
-                  Todo (JSON)
+                  {t('common.all_json')}
                 </Button>
                 {showProductExport && (
                   <Button 
@@ -277,7 +277,7 @@ const Header = () => {
                     disabled={exporting}
                   >
                     <Download className="h-4 w-4" />
-                    Productos (CSV)
+                    {t('common.products_csv')}
                   </Button>
                 )}
                 <div className="border-t border-border my-2" />
@@ -287,7 +287,7 @@ const Header = () => {
                   onClick={handleSignOut}
                 >
                   <LogOut className="h-4 w-4 mr-2" />
-                  Cerrar sesión
+                  {t('common.logout')}
                 </Button>
               </>
             ) : (
@@ -295,12 +295,12 @@ const Header = () => {
                 <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
                   <Button variant="natural" className="w-full justify-start gap-2">
                     <User className="h-4 w-4" />
-                    Acceder
+                    {t('common.access')}
                   </Button>
                 </Link>
                 <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
                   <Button variant="earth" className="w-full">
-                    Únete
+                    {t('common.join')}
                   </Button>
                 </Link>
               </>
