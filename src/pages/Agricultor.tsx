@@ -150,7 +150,7 @@ export default function Agricultor() {
       setShowProfile(false);
     } catch (e) {
       console.error('Error saving profile:', e);
-      toast.error('Error');
+      toast.error((e as any)?.message || 'Error al guardar perfil');
     } finally {
       setSavingProfile(false);
     }

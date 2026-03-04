@@ -104,7 +104,34 @@ api.post('/auth/reset-password', requireAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: 'Error interno' }); }
 });
 
-// Google Sign-Inapi.post("/auth/google", async (req, res) => {  const { credential } = req.body;  if (!credential) return res.status(400).json({ error: "Token requerido" });  if (!GOOGLE_CLIENT_ID) return res.status(500).json({ error: "Google Sign-In no configurado" });  try {    const ticket = await googleClient.verifyIdToken({ idToken: credential, audience: GOOGLE_CLIENT_ID });    const payload = ticket.getPayload();    if (!payload || !payload.email) return res.status(400).json({ error: "Token inválido" });    const email = payload.email.toLowerCase();    const displayName = payload.name || null;    // Check if user exists    let result = await pool.query("SELECT * FROM users WHERE email = ", [email]);    let user;    if (result.rows.length > 0) {      user = result.rows[0];      await pool.query("UPDATE users SET last_sign_in = now() WHERE id = ", [user.id]);    } else {      // Create new user (no password needed for Google users)      const randomHash = await require("bcryptjs").hash(require("crypto").randomBytes(32).toString("hex"), 12);      result = await pool.query(        "INSERT INTO users (email, password_hash, display_name, email_confirmed) VALUES (, , , true) RETURNING id, email, display_name",        [email, randomHash, displayName]      );      user = result.rows[0];    }    res.json({ user: { id: user.id, email: user.email, display_name: user.display_name }, access_token: generateToken(user), token_type: "bearer" });  } catch (e) { console.error("Google auth error:", e); res.status(401).json({ error: "Error de autenticación con Google" }); }});
+// Google Sign-In
+api.post('/auth/google', async (req, res) => {
+  const { credential } = req.body;
+  if (!credential) return res.status(400).json({ error: 'Token requerido' });
+  if (!GOOGLE_CLIENT_ID) return res.status(500).json({ error: 'Google Sign-In no configurado' });
+  try {
+    const ticket = await googleClient.verifyIdToken({ idToken: credential, audience: GOOGLE_CLIENT_ID });
+    const payload = ticket.getPayload();
+    if (!payload || !payload.email) return res.status(400).json({ error: 'Token inválido' });
+    const email = payload.email.toLowerCase();
+    const displayName = payload.name || null;
+    let result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    let user;
+    if (result.rows.length > 0) {
+      user = result.rows[0];
+      await pool.query('UPDATE users SET last_sign_in = now() WHERE id = $1', [user.id]);
+    } else {
+      const crypto = require('crypto');
+      const randomHash = await bcrypt.hash(crypto.randomBytes(32).toString('hex'), 12);
+      result = await pool.query(
+        'INSERT INTO users (email, password_hash, display_name, email_confirmed) VALUES ($1, $2, $3, true) RETURNING id, email, display_name',
+        [email, randomHash, displayName]
+      );
+      user = result.rows[0];
+    }
+    res.json({ user: { id: user.id, email: user.email, display_name: user.display_name }, access_token: generateToken(user), token_type: 'bearer' });
+  } catch (e) { console.error('Google auth error:', e); res.status(401).json({ error: 'Error de autenticación con Google' }); }
+});
 // Roles
 api.get('/roles', requireAuth, async (req, res) => {
   try {
@@ -204,6 +231,23 @@ api.get('/messages/unread/count', requireAuth, async (req, res) => {
       [req.user.sub]
     );
     res.json({ count: result.rows[0].count });
+  } catch (e) { res.status(500).json({ error: 'Error' }); }
+});
+
+// Beta Feedback (no auth required)
+api.post('/feedback', async (req, res) => {
+  const { nombre, email, comentarios } = req.body;
+  if (!nombre || !email || !comentarios) return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+  try {
+    await pool.query('INSERT INTO beta_feedback (nombre, email, comentarios) VALUES ($1, $2, $3)', [nombre.trim(), email.trim().toLowerCase(), comentarios.trim()]);
+    res.json({ message: 'Gracias por tu feedback' });
+  } catch (e) { console.error('Feedback error:', e); res.status(500).json({ error: 'Error interno' }); }
+});
+
+api.get('/feedback', requireAuth, async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM beta_feedback ORDER BY created_at DESC');
+    res.json(result.rows);
   } catch (e) { res.status(500).json({ error: 'Error' }); }
 });
 

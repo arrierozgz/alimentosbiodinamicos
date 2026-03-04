@@ -121,6 +121,9 @@ const Header = () => {
                 <DropdownMenuItem asChild>
                   <Link to="/mi-perfil">{t('common.my_profile')}</Link>
                 </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/seleccionar-rol">🔄 {t('common.switch_role')}</Link>
+                </DropdownMenuItem>
                 {(activeRole === 'agricultor' || activeRole === 'ganadero') && (
                   <DropdownMenuItem asChild>
                     <Link to="/agricultor">{t('common.my_products')}</Link>

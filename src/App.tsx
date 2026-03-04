@@ -18,6 +18,7 @@ import Elaborador from "./pages/Elaborador";
 import Consumidor from "./pages/Consumidor";
 import Mensajes from "./pages/Mensajes";
 import ResetPassword from "./pages/ResetPassword";
+import Mapa from "./pages/Mapa";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ const App = () => (
               <Route path="/mi-perfil" element={<MiPerfil />} />
               <Route path="/elaborador" element={<Elaborador />} />
               <Route path="/mensajes" element={<Mensajes />} />
+              <Route path="/mapa" element={<Mapa />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

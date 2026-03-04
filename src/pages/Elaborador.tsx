@@ -120,7 +120,7 @@ export default function Elaborador() {
       await supabase.from('farmer_contact_details' as any).upsert({ user_id: user?.id, contact_email: contact.contact_email || null, contact_phone: contact.contact_phone || null }).select();
       toast.success(t('elaborador.profile_saved'));
       setShowProfile(false);
-    } catch (e) { toast.error(t('elaborador.error_save')); console.error(e); } finally { setSavingProfile(false); }
+    } catch (e: any) { toast.error(e?.message || t('elaborador.error_save')); console.error('Profile save error:', e); } finally { setSavingProfile(false); }
   };
 
   const openForm = (item?: Preparation) => {

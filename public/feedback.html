@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <title>Feedback Beta — Alimentos Biodinámicos</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #faf8f5; color: #1a1a1a; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .card { background: white; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); max-width: 520px; width: 100%; padding: 40px; }
+    .logo { text-align: center; margin-bottom: 24px; }
+    .logo span { font-size: 40px; }
+    h1 { font-family: 'Georgia', serif; font-size: 24px; text-align: center; color: #2d5016; margin-bottom: 8px; }
+    .subtitle { text-align: center; color: #666; font-size: 15px; margin-bottom: 28px; line-height: 1.5; }
+    label { display: block; font-weight: 600; font-size: 14px; color: #333; margin-bottom: 6px; margin-top: 16px; }
+    input, textarea { width: 100%; padding: 12px 16px; border: 2px solid #e0ddd8; border-radius: 10px; font-size: 16px; font-family: inherit; transition: border-color 0.2s; background: #faf8f5; }
+    input:focus, textarea:focus { outline: none; border-color: #4a7c3f; background: white; }
+    textarea { min-height: 140px; resize: vertical; }
+    button { width: 100%; margin-top: 24px; padding: 14px; background: #4a7c3f; color: white; border: none; border-radius: 10px; font-size: 17px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    button:hover { background: #3d6834; }
+    button:disabled { background: #aaa; cursor: not-allowed; }
+    .success { display: none; text-align: center; padding: 40px 20px; }
+    .success .check { font-size: 60px; margin-bottom: 16px; }
+    .success h2 { color: #2d5016; margin-bottom: 12px; }
+    .success p { color: #666; line-height: 1.6; }
+    .success a { color: #4a7c3f; font-weight: 600; text-decoration: none; }
+    .error { color: #c62828; font-size: 13px; margin-top: 8px; display: none; }
+    .badge { display: inline-block; background: #4a7c3f20; color: #4a7c3f; font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 20px; margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div id="form-view">
+      <div class="logo"><span>🌿</span></div>
+      <div style="text-align:center"><span class="badge">Beta testing</span></div>
+      <h1>Tu opinión nos importa</h1>
+      <p class="subtitle">Estamos en fase de pruebas. Cuéntanos qué te parece la web, qué mejorarías o si encuentras algún error. ¡Cada comentario cuenta!</p>
+      
+      <form id="feedback-form">
+        <label for="nombre">👤 Tu nombre</label>
+        <input type="text" id="nombre" name="nombre" placeholder="Ej: María García" required>
+        
+        <label for="email">📧 Tu email</label>
+        <input type="email" id="email" name="email" placeholder="tu@email.com" required>
+        
+        <label for="comentarios">💬 Comentarios, sugerencias o errores</label>
+        <textarea id="comentarios" name="comentarios" placeholder="¿Qué te ha gustado? ¿Qué mejorarías? ¿Has encontrado algún error? Cuéntanos todo..." required></textarea>
+        
+        <div class="error" id="error-msg"></div>
+        <button type="submit" id="submit-btn">Enviar feedback 🚀</button>
+      </form>
+    </div>
+    
+    <div class="success" id="success-view">
+      <div class="check">✅</div>
+      <h2>¡Gracias por tu feedback!</h2>
+      <p>Tu opinión es muy valiosa para nosotros. Revisaremos tus comentarios con mucho cariño.</p>
+      <p style="margin-top:16px"><a href="https://alimentosbiodinamicos.es">← Volver a la web</a></p>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('feedback-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('submit-btn');
+      const errEl = document.getElementById('error-msg');
+      btn.disabled = true;
+      btn.textContent = 'Enviando...';
+      errEl.style.display = 'none';
+      
+      try {
+        const res = await fetch('/api/feedback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            nombre: document.getElementById('nombre').value,
+            email: document.getElementById('email').value,
+            comentarios: document.getElementById('comentarios').value
+          })
+        });
+        if (!res.ok) throw new Error('Error al enviar');
+        document.getElementById('form-view').style.display = 'none';
+        document.getElementById('success-view').style.display = 'block';
+      } catch (err) {
+        errEl.textContent = 'Error al enviar. Inténtalo de nuevo.';
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Enviar feedback 🚀';
+      }
+    });
+  </script>
+</body>
+</html>
