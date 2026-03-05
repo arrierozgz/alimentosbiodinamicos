@@ -95,7 +95,7 @@ const Header = () => {
               <DropdownMenuTrigger asChild>
                 <Button variant="natural" className="gap-2">
                   <User className="h-4 w-4" />
-                  {activeRole ? roleLabels[activeRole] : t('common.my_account')}
+                  {user?.user_metadata?.display_name || user?.email?.split('@')[0] || (activeRole ? roleLabels[activeRole] : t('common.my_account'))}
                   <ChevronDown className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
