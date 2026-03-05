@@ -9,6 +9,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { Leaf, MapPin, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/useAuth';
 
 // Fix Leaflet default marker icons
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -71,6 +72,7 @@ interface Producer {
 
 export default function Mapa() {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [producers, setProducers] = useState<Producer[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -127,12 +129,15 @@ export default function Mapa() {
               </div>
             ) : (
               <>
-                <div className="rounded-xl overflow-hidden border shadow-md" style={{ height: '500px' }}>
+                <div className="rounded-xl overflow-hidden border shadow-md" style={{ height: '70vh', minHeight: '400px' }}>
                   <MapContainer
                     center={[40.0, -3.5]}
-                    zoom={6}
+                    zoom={5}
+                    minZoom={2}
+                    maxZoom={18}
                     style={{ height: '100%', width: '100%' }}
                     scrollWheelZoom={true}
+                    worldCopyJump={true}
                   >
                     <TileLayer
                       attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -157,7 +162,7 @@ export default function Mapa() {
                     ? `${producers.length} productores en el mapa`
                     : 'Aún no hay productores con ubicación. ¡Sé el primero!'}
                 </p>
-                {producers.length === 0 && (
+                {producers.length === 0 && !user && (
                   <div className="text-center mt-6">
                     <Link to="/auth">
                       <Button variant="earth" size="lg">
