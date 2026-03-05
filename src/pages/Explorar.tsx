@@ -61,6 +61,7 @@ export default function Explorar() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const initialMode = searchParams.get('modo') || '';
+  const initialSearch = searchParams.get('buscar') || '';
 
   const [farmers, setFarmers] = useState<FarmerProfile[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -69,7 +70,7 @@ export default function Explorar() {
   const [loading, setLoading] = useState(true);
 
   // Filters
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [filterCategory, setFilterCategory] = useState('');
   const [filterVariety, setFilterVariety] = useState('');
   const [filterPackaging, setFilterPackaging] = useState('');

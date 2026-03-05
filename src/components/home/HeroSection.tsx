@@ -1,10 +1,14 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Users, Leaf, MapPin, User } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { ArrowRight, Users, Leaf, MapPin, User, Search } from "lucide-react";
 
 const HeroSection = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState("");
 
   return (
     <section className="relative overflow-hidden bg-gradient-natural">
@@ -30,7 +34,33 @@ const HeroSection = () => {
               {t('home.hero_description')}
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-fade-up" style={{ animationDelay: "0.3s" }}>
+            {/* Search bar */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                navigate(`/explorar${searchTerm ? `?buscar=${encodeURIComponent(searchTerm)}` : ''}`);
+              }}
+              className="relative max-w-lg mx-auto lg:mx-0 mb-8 animate-fade-up"
+              style={{ animationDelay: "0.3s" }}
+            >
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder={t('home.search_placeholder')}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-12 pr-28 h-14 text-lg rounded-xl border-2 shadow-card"
+              />
+              <Button
+                type="submit"
+                variant="earth"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg h-10"
+              >
+                {t('home.search_button')}
+              </Button>
+            </form>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-fade-up" style={{ animationDelay: "0.4s" }}>
               <Link to="/auth">
                 <Button variant="earth" size="xl" className="w-full sm:w-auto group text-lg h-16">
                   <User className="h-5 w-5" />

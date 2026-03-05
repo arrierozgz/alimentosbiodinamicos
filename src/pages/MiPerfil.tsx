@@ -157,9 +157,10 @@ export default function MiPerfil() {
       
       // Refetch to get the id if it was an insert
       fetchProfile();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving profile:', error);
-      toast.error('Error al guardar el perfil');
+      const msg = error?.message || error?.details || 'Error desconocido';
+      toast.error(`Error al guardar el perfil: ${msg}`);
     } finally {
       setSaving(false);
     }

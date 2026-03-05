@@ -114,6 +114,11 @@ class QueryBuilder {
     return this;
   }
 
+  maybeSingle() {
+    this.isSingle = true;
+    return this;
+  }
+
   async then(resolve: (value: any) => void, reject?: (reason: any) => void) {
     try {
       const result = await this.execute();
@@ -250,14 +255,20 @@ class DeleteBuilder {
 class UpsertBuilder {
   private table: string;
   private rows: any[];
+  private onConflictCol?: string;
 
-  constructor(table: string, rows: any[]) {
+  constructor(table: string, rows: any[], options?: { onConflict?: string }) {
     this.table = table;
     this.rows = rows;
+    this.onConflictCol = options?.onConflict;
   }
 
   async select(columns?: string) {
-    const res = await fetchAPI(`/data/${this.table}`, {
+    let url = `/data/${this.table}`;
+    if (this.onConflictCol) {
+      url += `?on_conflict=${this.onConflictCol}`;
+    }
+    const res = await fetchAPI(url, {
       method: 'POST',
       headers: {
         'Prefer': 'return=representation,resolution=merge-duplicates',
@@ -468,9 +479,9 @@ signInWithGoogle: async (credential: string) => {      try {        const res = 
     delete: () => {
       return new DeleteBuilder(table);
     },
-    upsert: (rows: any | any[]) => {
+    upsert: (rows: any | any[], options?: { onConflict?: string }) => {
       const arr = Array.isArray(rows) ? rows : [rows];
-      return new UpsertBuilder(table, arr);
+      return new UpsertBuilder(table, arr, options);
     },
   }),
 };

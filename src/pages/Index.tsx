@@ -5,6 +5,7 @@ import SteinerQuote from "@/components/home/SteinerQuote";
 import ValuesSection from "@/components/home/ValuesSection";
 import RolesSection from "@/components/home/RolesSection";
 import PreparadosPreview from "@/components/home/PreparadosPreview";
+import DisclaimerSection from "@/components/home/DisclaimerSection";
 import CTASection from "@/components/home/CTASection";
 
 const Index = () => {
@@ -13,6 +14,7 @@ const Index = () => {
       <Header />
       <main className="flex-1">
         <HeroSection />
+        <DisclaimerSection />
         <SteinerQuote />
         <ValuesSection />
         <RolesSection />
