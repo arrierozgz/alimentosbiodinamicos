@@ -2,9 +2,11 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { ShoppingBasket, Tractor, Beaker, ArrowRight } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 const RolesSection = () => {
   const { t } = useTranslation();
+  const { user } = useAuth();
 
   const roles = [
     {
@@ -13,7 +15,7 @@ const RolesSection = () => {
       descKey: "home.role_consumer_desc",
       features: ["home.role_consumer_f1", "home.role_consumer_f2", "home.role_consumer_f3"],
       color: "primary" as const,
-      link: "/auth",
+      link: user ? "/consumidor" : "/auth",
     },
     {
       icon: Tractor,
@@ -21,7 +23,7 @@ const RolesSection = () => {
       descKey: "home.role_farmer_desc",
       features: ["home.role_farmer_f1", "home.role_farmer_f2", "home.role_farmer_f3"],
       color: "accent" as const,
-      link: "/auth",
+      link: user ? "/agricultor" : "/auth",
     },
     {
       icon: Beaker,
@@ -29,7 +31,7 @@ const RolesSection = () => {
       descKey: "home.role_elaborador_desc",
       features: ["home.role_elaborador_f1", "home.role_elaborador_f2", "home.role_elaborador_f3"],
       color: "leaf" as const,
-      link: "/auth",
+      link: user ? "/elaborador" : "/auth",
     },
   ];
 

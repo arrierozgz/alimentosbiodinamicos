@@ -4,10 +4,12 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowRight, Users, Leaf, MapPin, User, Search } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 const HeroSection = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
 
   return (
@@ -61,12 +63,14 @@ const HeroSection = () => {
             </form>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-fade-up" style={{ animationDelay: "0.4s" }}>
-              <Link to="/auth">
-                <Button variant="earth" size="xl" className="w-full sm:w-auto group text-lg h-16">
-                  <User className="h-5 w-5" />
-                  {t('home.hero_cta_access')}
-                </Button>
-              </Link>
+              {!user && (
+                <Link to="/auth">
+                  <Button variant="earth" size="xl" className="w-full sm:w-auto group text-lg h-16">
+                    <User className="h-5 w-5" />
+                    {t('home.hero_cta_access')}
+                  </Button>
+                </Link>
+              )}
               <Link to="/explorar">
                 <Button variant="outline" size="xl" className="w-full sm:w-auto group text-lg h-16">
                   {t('home.hero_cta_explore')}
