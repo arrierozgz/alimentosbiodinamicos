@@ -1,0 +1,56 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: biodinamicos
+      POSTGRES_USER: bioapp
+      POSTGRES_PASSWORD: v7yTYdhwUObdPnsUoGt8W6NW5dy5rLlG
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bioapp -d biodinamicos"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgrest:
+    image: postgrest/postgrest:v12.2.3
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGRST_DB_URI: postgres://bioapp:v7yTYdhwUObdPnsUoGt8W6NW5dy5rLlG@db:5432/biodinamicos
+      PGRST_DB_SCHEMAS: public
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_SERVER_PORT: "3001"
+      PGRST_JWT_SECRET: "60fbe00b1a938a795e143da6622ff24234275a2f2964d50f0ecda12cbe321a7f"
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "3080:3080"
+    environment:
+      NODE_ENV: production
+      PORT: "3080"
+      JWT_SECRET: "60fbe00b1a938a795e143da6622ff24234275a2f2964d50f0ecda12cbe321a7f"
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_PASSWORD: v7yTYdhwUObdPnsUoGt8W6NW5dy5rLlG
+      POSTGREST_HOST: postgrest
+      GOOGLE_CLIENT_ID: "967433397587-mjho488mjtc2gen0qa2jr30ph76s4f7p.apps.googleusercontent.com"
+      GMAIL_APP_PASSWORD: "msokkwkqjesmtnij"
+    volumes:
+      - uploads:/app/dist/uploads
+
+volumes:
+  pgdata:
+  uploads:

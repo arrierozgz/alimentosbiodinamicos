@@ -110,7 +110,12 @@
     "cta_description": "Whether you are a consumer, farmer, rancher or preparation maker, here you have a space to connect directly and transparently.",
     "cta_register": "Create free account",
     "cta_explore": "Explore without signing up",
-    "cta_footer": "100% free · No commissions · Non-profit"
+    "cta_footer": "100% free · No commissions · Non-profit",
+    "role_shop": "Other products",
+    "role_shop_desc": "Eco product shop",
+    "role_shop_f1": "List your eco products",
+    "role_shop_f2": "Direct contact with customers",
+    "role_shop_f3": "Cleaning, hygiene, cosmetics..."
   },
   "auth": {
     "title_login": "Log in",
@@ -146,7 +151,9 @@
     "producer_desc": "I make biodynamic preparations",
     "continue": "Continue",
     "change_later": "You can add or change roles from your profile at any time.",
-    "welcome_community": "Welcome to the community!"
+    "welcome_community": "Welcome to the community!",
+    "shop": "Other products",
+    "shop_desc": "Eco product shop (cleaning, hygiene, cosmetics...)"
   },
   "consumer": {
     "welcome": "Welcome to the community!",
@@ -381,5 +388,34 @@
     "cta_title": "Join the community",
     "cta_desc": "Whether you're a farmer, consumer or preparation maker, this is your place.",
     "cta_button": "Create free account"
+  },
+  "shop_panel": {
+    "my_garden": "My Shop",
+    "manage_products": "Manage your products",
+    "profile_title": "📋 My shop profile",
+    "farm_name": "Shop name",
+    "farm_name_placeholder": "e.g. Eco Shop",
+    "location": "Location",
+    "location_placeholder": "e.g. Zaragoza",
+    "province": "Province",
+    "province_placeholder": "e.g. Zaragoza",
+    "postal_code": "Postal Code",
+    "presentation": "About",
+    "presentation_placeholder": "Brief description of your shop and products...",
+    "contact_title": "📞 Contact (visible to buyers)",
+    "contact_email": "Contact email",
+    "contact_phone": "Phone",
+    "contact_web": "Website",
+    "save_profile": "Save profile",
+    "add_product": "Add Product",
+    "no_products": "No products yet",
+    "add_first": "Add your first product",
+    "profile_saved": "Profile saved",
+    "product_created": "Product created",
+    "product_updated": "Product updated",
+    "product_deleted": "Product deleted",
+    "name_required": "Name is required",
+    "profile_btn": "Profile",
+    "confirm_delete_product": "Delete this product?"
   }
 }

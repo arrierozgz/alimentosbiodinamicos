@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { ShoppingBasket, Tractor, Beaker, ArrowRight } from "lucide-react";
+import { ShoppingBasket, Tractor, Beaker, Store, ArrowRight } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 const RolesSection = () => {
@@ -32,6 +32,14 @@ const RolesSection = () => {
       features: ["home.role_elaborador_f1", "home.role_elaborador_f2", "home.role_elaborador_f3"],
       color: "leaf" as const,
       link: user ? "/elaborador" : "/auth",
+    },
+    {
+      icon: Store,
+      titleKey: "home.role_shop",
+      descKey: "home.role_shop_desc",
+      features: ["home.role_shop_f1", "home.role_shop_f2", "home.role_shop_f3"],
+      color: "primary" as const,
+      link: user ? "/tienda" : "/auth",
     },
   ];
 

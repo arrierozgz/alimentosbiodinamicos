@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Leaf, User, Search, Heart, MessageCircle, ChevronDown, LogOut, Download } from "lucide-react";
@@ -22,12 +22,32 @@ const Header = () => {
   const { user, signOut } = useAuth();
   const { roles, activeRole, setActiveRole } = useUserRoles();
   const { exporting, exportData, exportProductsCSV } = useDataExport();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // Poll unread messages every 30s
+  useEffect(() => {
+    if (!user) return;
+    const authData = localStorage.getItem('bio_auth');
+    const token = authData ? JSON.parse(authData).token : null;
+    if (!token) return;
+
+    const fetchUnread = () => {
+      fetch('/api/messages/unread/count', { headers: { Authorization: `Bearer ${token}` } })
+        .then(r => r.json())
+        .then(d => setUnreadCount(d.count || 0))
+        .catch(() => {});
+    };
+    fetchUnread();
+    const interval = setInterval(fetchUnread, 30000);
+    return () => clearInterval(interval);
+  }, [user]);
 
   const roleLabels: Record<string, string> = {
     consumidor: t('home.role_consumer'),
     agricultor: t('home.role_farmer'),
     ganadero: t('home.role_farmer'),
     elaborador: t('home.role_elaborador'),
+    tienda: t('roles.shop'),
   };
 
   const handleSignOut = async () => {
@@ -78,9 +98,14 @@ const Header = () => {
         <div className="hidden md:flex items-center gap-2">
           <LanguageSwitcher />
           {user && (
-            <Link to="/mensajes">
+            <Link to="/mensajes" className="relative">
               <Button variant="ghost" size="icon">
                 <MessageCircle className="h-5 w-5" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
               </Button>
             </Link>
           )}
@@ -132,6 +157,11 @@ const Header = () => {
                 {activeRole === 'elaborador' && (
                   <DropdownMenuItem asChild>
                     <Link to="/elaborador">{t('common.my_preparations_link')}</Link>
+                  </DropdownMenuItem>
+                )}
+                {activeRole === 'tienda' && (
+                  <DropdownMenuItem asChild>
+                    <Link to="/tienda">{t('common.my_products')}</Link>
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />
@@ -258,6 +288,13 @@ const Header = () => {
                   <Link to="/elaborador" onClick={() => setIsMenuOpen(false)}>
                     <Button variant="ghost" className="w-full justify-start">
                       {t('common.my_preparations_link')}
+                    </Button>
+                  </Link>
+                )}
+                {activeRole === 'tienda' && (
+                  <Link to="/tienda" onClick={() => setIsMenuOpen(false)}>
+                    <Button variant="ghost" className="w-full justify-start">
+                      {t('common.my_products')}
                     </Button>
                   </Link>
                 )}

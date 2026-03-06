@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Leaf, Save, X, Plus, Trash2 } from 'lucide-react';
+import { PhotoUploader } from './PhotoUploader';
 import {
   PRODUCT_CATEGORIES, PRODUCT_CATEGORY_EMOJIS,
   CERTIFICATION_TYPES, PACKAGING_OPTIONS, SEASONS,
@@ -18,11 +19,17 @@ interface Variation {
   unit: string;
 }
 
+export interface PhotoItem {
+  url: string;
+  thumb: string;
+}
+
 export interface ProductFormData {
   name: string;
   season: string;
   product_type: string;
   photo_url: string;
+  photos: PhotoItem[];
   certifications: string[];
   variations: Variation[];
 }
@@ -43,17 +50,24 @@ export function ProductForm({ open, onClose, onSave, initialData, loading }: Pro
     season: '',
     product_type: '',
     photo_url: '',
+    photos: [],
     certifications: [],
     variations: [{ ...EMPTY_VARIATION }],
   });
 
   useEffect(() => {
     if (initialData) {
+      // Migrar photo_url antiguo a photos array
+      let photos = initialData.photos || [];
+      if (photos.length === 0 && initialData.photo_url) {
+        photos = [{ url: initialData.photo_url, thumb: initialData.photo_url }];
+      }
       setFormData({
         name: initialData.name || '',
         season: initialData.season || '',
         product_type: initialData.product_type || '',
         photo_url: initialData.photo_url || '',
+        photos,
         certifications: initialData.certifications || [],
         variations: initialData.variations?.length
           ? initialData.variations
@@ -65,6 +79,7 @@ export function ProductForm({ open, onClose, onSave, initialData, loading }: Pro
         season: '',
         product_type: '',
         photo_url: '',
+        photos: [],
         certifications: [],
         variations: [{ ...EMPTY_VARIATION }],
       });
@@ -73,7 +88,12 @@ export function ProductForm({ open, onClose, onSave, initialData, loading }: Pro
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+    // Sincronizar photo_url con la primera foto (compatibilidad)
+    const data = {
+      ...formData,
+      photo_url: formData.photos.length > 0 ? formData.photos[0].url : '',
+    };
+    onSave(data);
   };
 
   const toggleCert = (cert: string) => {
@@ -104,7 +124,11 @@ export function ProductForm({ open, onClose, onSave, initialData, loading }: Pro
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent
+        className="sm:max-w-lg max-h-[90vh] overflow-y-auto"
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 font-display text-xl">
             <Leaf className="w-5 h-5 text-primary" />
@@ -141,6 +165,16 @@ export function ProductForm({ open, onClose, onSave, initialData, loading }: Pro
               placeholder="Ej: Aceite de oliva virgen extra"
               className="h-12 text-base"
               required
+            />
+          </div>
+
+          {/* Fotos (estilo Wallapop) */}
+          <div className="space-y-2">
+            <Label className="text-base font-medium">Fotos del producto</Label>
+            <PhotoUploader
+              photos={formData.photos}
+              onChange={(photos) => setFormData({ ...formData, photos })}
+              maxPhotos={5}
             />
           </div>
 

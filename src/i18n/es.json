@@ -110,7 +110,12 @@
     "cta_description": "Ya seas consumidor, agricultor, ganadero o elaborador de preparados, aquí tienes un espacio para conectar de forma directa y transparente.",
     "cta_register": "Crear cuenta gratuita",
     "cta_explore": "Explorar sin registrarse",
-    "cta_footer": "100% gratuito · Sin comisiones · Sin ánimo de lucro"
+    "cta_footer": "100% gratuito · Sin comisiones · Sin ánimo de lucro",
+    "role_shop": "Otros productos",
+    "role_shop_desc": "Tienda de productos ecológicos",
+    "role_shop_f1": "Publica tus productos eco",
+    "role_shop_f2": "Contacto directo con clientes",
+    "role_shop_f3": "Limpieza, higiene, cosmética..."
   },
   "auth": {
     "title_login": "Iniciar sesión",
@@ -146,7 +151,9 @@
     "producer_desc": "Elaboro preparados biodinámicos",
     "continue": "Continuar",
     "change_later": "Puedes añadir o cambiar roles desde tu perfil en cualquier momento.",
-    "welcome_community": "¡Bienvenido/a a la comunidad!"
+    "welcome_community": "¡Bienvenido/a a la comunidad!",
+    "shop": "Otros productos",
+    "shop_desc": "Tienda de productos ecológicos (limpieza, higiene, cosmética...)"
   },
   "consumer": {
     "welcome": "¡Bienvenido/a a la comunidad!",
@@ -381,5 +388,34 @@
     "cta_title": "Únete a la comunidad",
     "cta_desc": "Ya seas agricultor, consumidor o elaborador de preparados, aquí tienes tu sitio.",
     "cta_button": "Crear cuenta gratuita"
+  },
+  "shop_panel": {
+    "my_garden": "Mi Tienda",
+    "manage_products": "Gestiona tus productos",
+    "profile_title": "📋 Mi perfil de tienda",
+    "farm_name": "Nombre de la tienda",
+    "farm_name_placeholder": "Ej: Biopompas Zaragoza",
+    "location": "Localidad",
+    "location_placeholder": "Ej: Zaragoza",
+    "province": "Provincia",
+    "province_placeholder": "Ej: Zaragoza",
+    "postal_code": "Código Postal",
+    "presentation": "Presentación",
+    "presentation_placeholder": "Breve descripción de tu tienda y productos...",
+    "contact_title": "📞 Contacto (visible para compradores)",
+    "contact_email": "Email de contacto",
+    "contact_phone": "Teléfono",
+    "contact_web": "Web",
+    "save_profile": "Guardar perfil",
+    "add_product": "Añadir Producto",
+    "no_products": "Sin productos aún",
+    "add_first": "Añade tu primer producto",
+    "profile_saved": "Perfil guardado",
+    "product_created": "Producto creado",
+    "product_updated": "Producto actualizado",
+    "product_deleted": "Producto eliminado",
+    "name_required": "El nombre es obligatorio",
+    "profile_btn": "Perfil",
+    "confirm_delete_product": "¿Eliminar este producto?"
   }
 }

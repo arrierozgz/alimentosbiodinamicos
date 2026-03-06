@@ -276,7 +276,7 @@ export default function Elaborador() {
       </main>
 
       <Dialog open={formOpen} onOpenChange={o => !o && setFormOpen(false)}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md" onPointerDownOutside={(e) => e.preventDefault()} onInteractOutside={(e) => e.preventDefault()}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Beaker className="w-5 h-5 text-purple-700" />

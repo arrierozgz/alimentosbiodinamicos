@@ -10,20 +10,75 @@ const { OAuth2Client } = require('google-auth-library');
 const cors = require('cors');
 const path = require('path');
 const http = require('http');
+const multer = require('multer');
+const sharp = require('sharp');
+const fs = require('fs');
+const crypto = require('crypto');
+
+const nodemailer = require('nodemailer');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+// ==========================================
+// Email transporter (notificaciones)
+// ==========================================
+const mailTransporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'lumicasalola@gmail.com',
+    pass: process.env.GMAIL_APP_PASSWORD || 'msokkwkqjesmtnij',
+  },
+});
+
+// Rate limit: max 1 email por destinatario cada 5 minutos
+const emailCooldowns = new Map();
+const EMAIL_COOLDOWN_MS = 5 * 60 * 1000;
+
+async function sendMessageNotification(recipientEmail, senderName, messagePreview) {
+  const now = Date.now();
+  const lastSent = emailCooldowns.get(recipientEmail) || 0;
+  if (now - lastSent < EMAIL_COOLDOWN_MS) return; // cooldown activo
+
+  emailCooldowns.set(recipientEmail, now);
+  try {
+    await mailTransporter.sendMail({
+      from: '"Alimentos Biodinámicos" <lumicasalola@gmail.com>',
+      to: recipientEmail,
+      subject: `💬 Nuevo mensaje de ${senderName}`,
+      html: `
+        <div style="font-family:sans-serif;max-width:500px;margin:0 auto;padding:20px;">
+          <h2 style="color:#4a7c59;">🌿 Alimentos Biodinámicos</h2>
+          <p><strong>${senderName}</strong> te ha enviado un mensaje:</p>
+          <div style="background:#f5f5f0;border-left:4px solid #4a7c59;padding:12px 16px;margin:16px 0;border-radius:4px;">
+            <em>"${messagePreview.substring(0, 200)}${messagePreview.length > 200 ? '...' : ''}"</em>
+          </div>
+          <a href="https://alimentosbiodinamicos.es/mensajes" style="display:inline-block;background:#4a7c59;color:white;padding:10px 24px;border-radius:6px;text-decoration:none;margin-top:8px;">
+            Ver mensaje
+          </a>
+          <p style="color:#999;font-size:12px;margin-top:24px;">
+            Recibes este email porque alguien te envió un mensaje en alimentosbiodinamicos.es
+          </p>
+        </div>
+      `,
+    });
+    console.log(`📧 Notificación enviada a ${recipientEmail}`);
+  } catch (e) {
+    console.error('Email notification error:', e.message);
+  }
+}
+
 const JWT_SECRET = process.env.JWT_SECRET || '60fbe00b1a938a795e143da6622ff24234275a2f2964d50f0ecda12cbe321a7f';
 const PORT = process.env.PORT || 3080;
+const POSTGREST_HOST = process.env.POSTGREST_HOST || '127.0.0.1';
 const POSTGREST_PORT = 3001;
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
 const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 const pool = new Pool({
-  host: 'localhost',
-  port: 5432,
+  host: process.env.DB_HOST || 'localhost',
+  port: parseInt(process.env.DB_PORT || '5432'),
   database: 'biodinamicos',
   user: 'bioapp',
   password: process.env.DB_PASSWORD || 'v7yTYdhwUObdPnsUoGt8W6NW5dy5rLlG',
@@ -142,7 +197,7 @@ api.get('/roles', requireAuth, async (req, res) => {
 
 api.post('/roles', requireAuth, async (req, res) => {
   const { role } = req.body;
-  if (!['consumidor', 'agricultor', 'ganadero', 'elaborador'].includes(role)) return res.status(400).json({ error: 'Rol no válido' });
+  if (!['consumidor', 'agricultor', 'ganadero', 'elaborador', 'tienda'].includes(role)) return res.status(400).json({ error: 'Rol no válido' });
   try {
     await pool.query('INSERT INTO user_roles (user_id, role) VALUES ($1, $2) ON CONFLICT (user_id, role) DO NOTHING', [req.user.sub, role]);
     res.json({ message: 'Rol añadido' });
@@ -220,6 +275,18 @@ api.post('/messages', requireAuth, async (req, res) => {
       [req.user.sub, to_user_id, message.trim()]
     );
     res.json(result.rows[0]);
+
+    // Notificación por email (async, no bloquea la respuesta)
+    Promise.all([
+      pool.query('SELECT email, display_name FROM users WHERE id = $1', [to_user_id]),
+      pool.query('SELECT display_name FROM users WHERE id = $1', [req.user.sub]),
+    ]).then(([recipientRes, senderRes]) => {
+      if (recipientRes.rows.length > 0) {
+        const recipientEmail = recipientRes.rows[0].email;
+        const senderName = senderRes.rows[0]?.display_name || 'Alguien';
+        sendMessageNotification(recipientEmail, senderName, message.trim());
+      }
+    }).catch(() => {});
   } catch (e) { console.error(e); res.status(500).json({ error: 'Error' }); }
 });
 
@@ -251,14 +318,74 @@ api.get('/feedback', requireAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: 'Error' }); }
 });
 
+// ==========================================
+// PHOTO UPLOAD (estilo Wallapop)
+// ==========================================
+const UPLOADS_DIR = path.resolve(__dirname, '..', 'dist', 'uploads');
+if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) cb(null, true);
+    else cb(new Error('Solo se permiten imágenes'));
+  },
+});
+
+// POST /api/upload — sube 1 foto, la redimensiona y devuelve URL
+api.post('/upload', requireAuth, upload.single('photo'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No se recibió imagen' });
+    const id = crypto.randomBytes(8).toString('hex');
+    const filename = `${id}.webp`;
+    const thumbFilename = `${id}_thumb.webp`;
+
+    // Imagen principal: max 1200px lado largo, calidad 80
+    await sharp(req.file.buffer)
+      .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true })
+      .webp({ quality: 80 })
+      .toFile(path.join(UPLOADS_DIR, filename));
+
+    // Thumbnail: 400px, calidad 60
+    await sharp(req.file.buffer)
+      .resize(400, 400, { fit: 'cover' })
+      .webp({ quality: 60 })
+      .toFile(path.join(UPLOADS_DIR, thumbFilename));
+
+    res.json({
+      url: `/uploads/${filename}`,
+      thumb: `/uploads/${thumbFilename}`,
+    });
+  } catch (e) {
+    console.error('Upload error:', e);
+    res.status(500).json({ error: 'Error al procesar imagen' });
+  }
+});
+
+// DELETE /api/upload/:filename — borra una foto
+api.delete('/upload/:filename', requireAuth, async (req, res) => {
+  try {
+    const { filename } = req.params;
+    // Sanitize
+    if (filename.includes('..') || filename.includes('/')) return res.status(400).json({ error: 'Nombre inválido' });
+    const base = filename.replace('.webp', '');
+    const mainFile = path.join(UPLOADS_DIR, `${base}.webp`);
+    const thumbFile = path.join(UPLOADS_DIR, `${base}_thumb.webp`);
+    if (fs.existsSync(mainFile)) fs.unlinkSync(mainFile);
+    if (fs.existsSync(thumbFile)) fs.unlinkSync(thumbFile);
+    res.json({ message: 'Eliminada' });
+  } catch (e) { res.status(500).json({ error: 'Error' }); }
+});
+
 // PostgREST proxy
 api.use('/data', (req, res) => {
   const options = {
-    hostname: '127.0.0.1',
+    hostname: POSTGREST_HOST,
     port: POSTGREST_PORT,
     path: req.url,
     method: req.method,
-    headers: { ...req.headers, host: `127.0.0.1:${POSTGREST_PORT}` },
+    headers: { ...req.headers, host: `${POSTGREST_HOST}:${POSTGREST_PORT}` },
   };
   const proxyReq = http.request(options, (proxyRes) => {
     res.status(proxyRes.statusCode);
@@ -278,6 +405,7 @@ app.use('/api', api);
 // STATIC FILES + SPA FALLBACK
 // ==========================================
 const distPath = path.resolve(__dirname, '..', 'dist');
+app.use('/uploads', express.static(path.join(distPath, 'uploads')));
 app.use(express.static(distPath));
 
 // SPA fallback

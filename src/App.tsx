@@ -15,6 +15,7 @@ import Preparados from "./pages/Preparados";
 import SobreNosotros from "./pages/SobreNosotros";
 import MiPerfil from "./pages/MiPerfil";
 import Elaborador from "./pages/Elaborador";
+import Tienda from "./pages/Tienda";
 import Consumidor from "./pages/Consumidor";
 import Mensajes from "./pages/Mensajes";
 import ResetPassword from "./pages/ResetPassword";
@@ -44,6 +45,7 @@ const App = () => (
               <Route path="/sobre-nosotros" element={<SobreNosotros />} />
               <Route path="/mi-perfil" element={<MiPerfil />} />
               <Route path="/elaborador" element={<Elaborador />} />
+              <Route path="/tienda" element={<Tienda />} />
               <Route path="/mensajes" element={<Mensajes />} />
               <Route path="/mapa" element={<Mapa />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

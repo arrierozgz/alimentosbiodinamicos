@@ -6,11 +6,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Leaf, Wheat, ShoppingBag, Beaker } from 'lucide-react';
+import { Leaf, Wheat, ShoppingBag, Beaker, Store } from 'lucide-react';
 import { toast } from 'sonner';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 
-type AppRole = 'consumidor' | 'agricultor' | 'ganadero' | 'elaborador';
+type AppRole = 'consumidor' | 'agricultor' | 'ganadero' | 'elaborador' | 'tienda';
 
 export default function RoleSelection() {
   const { t } = useTranslation();
@@ -24,6 +24,7 @@ export default function RoleSelection() {
     { role: 'consumidor', label: t('roles.consumer'), description: t('roles.consumer_desc'), icon: <ShoppingBag className="w-8 h-8" /> },
     { role: 'agricultor', label: t('roles.farmer'), description: t('roles.farmer_desc'), icon: <Wheat className="w-8 h-8" /> },
     { role: 'elaborador', label: t('roles.producer'), description: t('roles.producer_desc'), icon: <Beaker className="w-8 h-8" /> },
+    { role: 'tienda', label: t('roles.shop'), description: t('roles.shop_desc'), icon: <Store className="w-8 h-8" /> },
   ];
 
   const toggleRole = (role: AppRole) => {
@@ -44,6 +45,7 @@ export default function RoleSelection() {
       if (primary === 'consumidor') navigate('/consumidor');
       else if (primary === 'agricultor') navigate('/agricultor');
       else if (primary === 'elaborador') navigate('/elaborador');
+      else if (primary === 'tienda') navigate('/tienda');
       else navigate('/');
     } catch (error) {
       console.error(error);
