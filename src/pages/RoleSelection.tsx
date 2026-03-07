@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useUserRoles } from '@/hooks/useUserRoles';
@@ -16,9 +16,22 @@ export default function RoleSelection() {
   const { t } = useTranslation();
   const [selectedRoles, setSelectedRoles] = useState<AppRole[]>([]);
   const [loading, setLoading] = useState(false);
-  const { addRole, setActiveRole } = useUserRoles();
+  const { addRole, setActiveRole, roles, loading: rolesLoading } = useUserRoles();
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  // Si ya tiene roles, redirigir directamente (no mostrar selección de rol)
+  useEffect(() => {
+    if (!rolesLoading && roles.length > 0) {
+      // Ya tiene rol asignado - redirigir a su panel
+      const primary = roles[0];
+      if (primary === 'consumidor') navigate('/consumidor', { replace: true });
+      else if (primary === 'agricultor' || primary === 'ganadero') navigate('/agricultor', { replace: true });
+      else if (primary === 'elaborador') navigate('/elaborador', { replace: true });
+      else if (primary === 'tienda') navigate('/tienda', { replace: true });
+      else navigate('/', { replace: true });
+    }
+  }, [roles, rolesLoading, navigate]);
 
   const roleOptions: { role: AppRole; label: string; description: string; icon: React.ReactNode }[] = [
     { role: 'consumidor', label: t('roles.consumer'), description: t('roles.consumer_desc'), icon: <ShoppingBag className="w-8 h-8" /> },
@@ -51,6 +64,18 @@ export default function RoleSelection() {
       console.error(error);
     } finally { setLoading(false); }
   };
+
+  // Mostrar loading mientras verificamos roles
+  if (rolesLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Verificando...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!user) { navigate('/auth'); return null; }
 
