@@ -531,11 +531,13 @@ export default function Explorar() {
                               {farmerProducts.map((product) => (
                                 <span
                                   key={product.id}
-                                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-primary/10 text-xs font-medium"
+                                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-primary/10 text-xs font-medium"
                                 >
-                                  {product.product_type && PRODUCT_CATEGORY_EMOJIS[product.product_type] && (
+                                  {product.photo_url ? (
+                                    <img src={product.photo_url} alt="" className="w-5 h-5 rounded-full object-cover" />
+                                  ) : product.product_type && PRODUCT_CATEGORY_EMOJIS[product.product_type] ? (
                                     <span>{PRODUCT_CATEGORY_EMOJIS[product.product_type]}</span>
-                                  )}
+                                  ) : null}
                                   {product.name}
                                 </span>
                               ))}
@@ -566,13 +568,33 @@ export default function Explorar() {
                                   <div className="space-y-2">
                                     {farmerProducts.map(product => (
                                       <div key={product.id} className="bg-muted/50 rounded-lg p-3">
-                                        <div className="flex items-center gap-2 mb-1">
-                                          {product.product_type && PRODUCT_CATEGORY_EMOJIS[product.product_type] && (
-                                            <span className="text-lg">{PRODUCT_CATEGORY_EMOJIS[product.product_type]}</span>
-                                          )}
-                                          <span className="font-medium">{product.name}</span>
-                                          {product.certifications?.map(cert => getCertBadge(cert))}
-                                        </div>
+                                        <div className="flex items-start gap-3 mb-1">
+                                          {/* Product photo */}
+                                          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                                            {product.photo_url ? (
+                                              <img
+                                                src={product.photo_url}
+                                                alt={product.name}
+                                                className="w-full h-full object-cover"
+                                              />
+                                            ) : (
+                                              <div className="w-full h-full flex items-center justify-center bg-primary/10">
+                                                {product.product_type && PRODUCT_CATEGORY_EMOJIS[product.product_type] ? (
+                                                  <span className="text-2xl">{PRODUCT_CATEGORY_EMOJIS[product.product_type]}</span>
+                                                ) : (
+                                                  <Leaf className="w-6 h-6 text-primary/50" />
+                                                )}
+                                              </div>
+                                            )}
+                                          </div>
+                                          <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                              {product.product_type && PRODUCT_CATEGORY_EMOJIS[product.product_type] && (
+                                                <span className="text-lg">{PRODUCT_CATEGORY_EMOJIS[product.product_type]}</span>
+                                              )}
+                                              <span className="font-medium">{product.name}</span>
+                                              {product.certifications?.map(cert => getCertBadge(cert))}
+                                            </div>
                                         {product.season && (
                                           <p className="text-xs text-muted-foreground mb-1">🗓️ {product.season}</p>
                                         )}
@@ -592,6 +614,8 @@ export default function Explorar() {
                                             ))}
                                           </div>
                                         )}
+                                          </div>{/* end flex-1 */}
+                                        </div>{/* end flex items-start */}
                                       </div>
                                     ))}
                                   </div>
