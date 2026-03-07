@@ -215,11 +215,11 @@ export default function Producto() {
               {allPhotos.length > 0 ? (
                 <div className="space-y-3">
                   {/* Main photo */}
-                  <div className="relative aspect-square rounded-2xl overflow-hidden bg-muted border-2 border-border">
+                  <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-black/5 border-2 border-border">
                     <img
                       src={allPhotos[currentPhoto]}
                       alt={product.name}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain"
                     />
                     {allPhotos.length > 1 && (
                       <>
@@ -256,11 +256,11 @@ export default function Producto() {
                         <button
                           key={i}
                           onClick={() => setCurrentPhoto(i)}
-                          className={`w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 border-2 transition-colors ${
-                            i === currentPhoto ? 'border-primary' : 'border-transparent'
+                          className={`w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 border-2 transition-colors bg-black/5 ${
+                            i === currentPhoto ? 'border-primary' : 'border-border'
                           }`}
                         >
-                          <img src={url} alt="" className="w-full h-full object-cover" />
+                          <img src={url} alt="" className="w-full h-full object-contain" />
                         </button>
                       ))}
                     </div>
@@ -268,7 +268,7 @@ export default function Producto() {
                 </div>
               ) : (
                 /* No photos placeholder */
-                <div className="aspect-square rounded-2xl bg-gradient-to-br from-primary/5 to-primary/15 border-2 border-dashed border-primary/20 flex flex-col items-center justify-center">
+                <div className="aspect-[4/3] rounded-2xl bg-gradient-to-br from-primary/5 to-primary/15 border-2 border-dashed border-primary/20 flex flex-col items-center justify-center">
                   {categoryEmoji ? (
                     <span className="text-7xl mb-3">{categoryEmoji}</span>
                   ) : (
