@@ -20,6 +20,7 @@ import Consumidor from "./pages/Consumidor";
 import Mensajes from "./pages/Mensajes";
 import ResetPassword from "./pages/ResetPassword";
 import Mapa from "./pages/Mapa";
+import Producto from "./pages/Producto";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -48,6 +49,7 @@ const App = () => (
               <Route path="/tienda" element={<Tienda />} />
               <Route path="/mensajes" element={<Mensajes />} />
               <Route path="/mapa" element={<Mapa />} />
+              <Route path="/producto/:id" element={<Producto />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

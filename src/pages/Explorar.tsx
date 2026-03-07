@@ -525,22 +525,43 @@ export default function Explorar() {
                             </span>
                           </div>
 
-                          {/* Products summary */}
+                          {/* Products summary — clickable cards with photos */}
                           {farmerProducts.length > 0 && (
-                            <div className="flex flex-wrap gap-1.5 mb-2">
-                              {farmerProducts.map((product) => (
-                                <span
-                                  key={product.id}
-                                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-primary/10 text-xs font-medium"
-                                >
-                                  {product.photo_url ? (
-                                    <img src={product.photo_url} alt="" className="w-5 h-5 rounded-full object-cover" />
-                                  ) : product.product_type && PRODUCT_CATEGORY_EMOJIS[product.product_type] ? (
-                                    <span>{PRODUCT_CATEGORY_EMOJIS[product.product_type]}</span>
-                                  ) : null}
-                                  {product.name}
-                                </span>
-                              ))}
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-2">
+                              {farmerProducts.slice(0, 6).map((product) => {
+                                const pPhoto = product.photo_url;
+                                const pEmoji = product.product_type ? PRODUCT_CATEGORY_EMOJIS[product.product_type] : null;
+                                return (
+                                  <Link
+                                    key={product.id}
+                                    to={`/producto/${product.id}`}
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="flex items-center gap-2 p-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors group"
+                                  >
+                                    <div className="w-10 h-10 rounded-lg overflow-hidden bg-primary/10 flex-shrink-0">
+                                      {pPhoto ? (
+                                        <img src={pPhoto} alt="" className="w-full h-full object-cover" />
+                                      ) : pEmoji ? (
+                                        <div className="w-full h-full flex items-center justify-center">
+                                          <span className="text-lg">{pEmoji}</span>
+                                        </div>
+                                      ) : (
+                                        <div className="w-full h-full flex items-center justify-center">
+                                          <Leaf className="w-4 h-4 text-primary/40" />
+                                        </div>
+                                      )}
+                                    </div>
+                                    <span className="text-xs font-medium truncate group-hover:text-primary transition-colors">
+                                      {product.name}
+                                    </span>
+                                  </Link>
+                                );
+                              })}
+                              {farmerProducts.length > 6 && (
+                                <div className="flex items-center justify-center p-2 text-xs text-muted-foreground">
+                                  +{farmerProducts.length - 6} más
+                                </div>
+                              )}
                             </div>
                           )}
 
@@ -567,7 +588,12 @@ export default function Explorar() {
                                   <h4 className="text-sm font-semibold mb-2">{t('explore.available_products')}</h4>
                                   <div className="space-y-2">
                                     {farmerProducts.map(product => (
-                                      <div key={product.id} className="bg-muted/50 rounded-lg p-3">
+                                      <Link
+                                        key={product.id}
+                                        to={`/producto/${product.id}`}
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="block bg-muted/50 rounded-lg p-3 hover:bg-muted transition-colors"
+                                      >
                                         <div className="flex items-start gap-3 mb-1">
                                           {/* Product photo */}
                                           <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden bg-muted flex-shrink-0">
@@ -616,7 +642,7 @@ export default function Explorar() {
                                         )}
                                           </div>{/* end flex-1 */}
                                         </div>{/* end flex items-start */}
-                                      </div>
+                                      </Link>
                                     ))}
                                   </div>
                                 </div>
