@@ -21,6 +21,8 @@ import Mensajes from "./pages/Mensajes";
 import ResetPassword from "./pages/ResetPassword";
 import Mapa from "./pages/Mapa";
 import Producto from "./pages/Producto";
+import Privacidad from "./pages/Privacidad";
+import Terminos from "./pages/Terminos";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -50,6 +52,8 @@ const App = () => (
               <Route path="/mensajes" element={<Mensajes />} />
               <Route path="/mapa" element={<Mapa />} />
               <Route path="/producto/:id" element={<Producto />} />
+              <Route path="/privacidad" element={<Privacidad />} />
+              <Route path="/terminos" element={<Terminos />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
