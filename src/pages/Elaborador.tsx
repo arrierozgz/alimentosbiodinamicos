@@ -106,10 +106,24 @@ export default function Elaborador() {
     if (!profile.farm_name.trim()) { toast.error(t('elaborador.name_required')); return; }
     setSavingProfile(true);
     try {
+      // Auto-geocode
+      let latitude: number | null = null;
+      let longitude: number | null = null;
+      if (profile.approximate_location || profile.postal_code) {
+        try {
+          const q = [profile.approximate_location, profile.postal_code, profile.province, 'Spain'].filter(Boolean).join(', ');
+          const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=1`, {
+            headers: { 'User-Agent': 'AlimentosConscientes/1.0' }
+          });
+          const geo = await res.json();
+          if (geo.length > 0) { latitude = parseFloat(geo[0].lat); longitude = parseFloat(geo[0].lon); }
+        } catch (e) { console.warn('Geocoding failed:', e); }
+      }
       const data = {
         user_id: user?.id, farm_name: profile.farm_name, approximate_location: profile.approximate_location || null,
         province: profile.province || null, postal_code: profile.postal_code || null, contact_web: profile.contact_web || null,
         presentation: profile.presentation || null, activity_types: ['elaborador'], is_public: true,
+        ...(latitude && longitude ? { latitude, longitude } : {}),
       };
       if (profile.id) {
         await supabase.from('farmer_profiles' as any).update(data).eq('id', profile.id);

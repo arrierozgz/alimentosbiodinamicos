@@ -67,6 +67,8 @@ interface Producer {
   approximate_location?: string;
   province?: string;
   presentation?: string;
+  latitude?: number;
+  longitude?: number;
   coords: [number, number];
 }
 
@@ -84,12 +86,15 @@ export default function Mapa() {
     try {
       const { data } = await supabase
         .from('farmer_profiles_public' as any)
-        .select('user_id, farm_name, approximate_location, province, presentation');
+        .select('user_id, farm_name, approximate_location, province, presentation, latitude, longitude');
 
       if (data) {
         const mapped = (data as any[])
           .map((p) => {
-            const coords = getCoords(p.approximate_location, p.province);
+            // Use real coordinates from DB if available, fallback to province matching
+            const coords = (p.latitude && p.longitude)
+              ? [p.latitude, p.longitude] as [number, number]
+              : getCoords(p.approximate_location, p.province);
             return coords ? { ...p, coords } : null;
           })
           .filter(Boolean) as Producer[];
