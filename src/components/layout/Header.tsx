@@ -70,7 +70,7 @@ const Header = () => {
               Alimentos
             </span>
             <span className="font-display text-lg font-semibold text-primary ml-1">
-              Biodinámicos
+              Conscientes
             </span>
           </div>
         </Link>

@@ -110,7 +110,7 @@ export function useDataExport() {
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `biodinamicos-export-${new Date().toISOString().split('T')[0]}.json`;
+      link.download = `conscientes-export-${new Date().toISOString().split('T')[0]}.json`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

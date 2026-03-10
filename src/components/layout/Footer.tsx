@@ -15,7 +15,7 @@ const Footer = () => {
               </div>
               <div>
                 <span className="font-display text-lg font-semibold text-foreground">Alimentos</span>
-                <span className="font-display text-lg font-semibold text-primary ml-1">Biodinámicos</span>
+                <span className="font-display text-lg font-semibold text-primary ml-1">Conscientes</span>
               </div>
             </Link>
             <p className="text-muted-foreground max-w-md leading-relaxed">{t('footer.description')}</p>

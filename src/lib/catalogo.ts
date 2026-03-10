@@ -1,4 +1,4 @@
-// Catálogo de referencia para Alimentos Biodinámicos
+// Catálogo de referencia para Alimentos Conscientes
 // Basado en categorías Demeter Internacional, adaptado a producción ibérica
 // Los agricultores eligen de aquí al dar de alta sus productos
 

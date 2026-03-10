@@ -1,4 +1,4 @@
-// Alimentos Biodinámicos — Server unificado
+// Alimentos Conscientes — Server unificado
 // Sirve: static files (dist/) + Auth API + proxy PostgREST
 // Puerto: 3080
 
@@ -44,21 +44,21 @@ async function sendMessageNotification(recipientEmail, senderName, messagePrevie
   emailCooldowns.set(recipientEmail, now);
   try {
     await mailTransporter.sendMail({
-      from: '"Alimentos Biodinámicos" <lumicasalola@gmail.com>',
+      from: '"Alimentos Conscientes" <lumicasalola@gmail.com>',
       to: recipientEmail,
       subject: `💬 Nuevo mensaje de ${senderName}`,
       html: `
         <div style="font-family:sans-serif;max-width:500px;margin:0 auto;padding:20px;">
-          <h2 style="color:#4a7c59;">🌿 Alimentos Biodinámicos</h2>
+          <h2 style="color:#4a7c59;">🌿 Alimentos Conscientes</h2>
           <p><strong>${senderName}</strong> te ha enviado un mensaje:</p>
           <div style="background:#f5f5f0;border-left:4px solid #4a7c59;padding:12px 16px;margin:16px 0;border-radius:4px;">
             <em>"${messagePreview.substring(0, 200)}${messagePreview.length > 200 ? '...' : ''}"</em>
           </div>
-          <a href="https://alimentosbiodinamicos.es/mensajes" style="display:inline-block;background:#4a7c59;color:white;padding:10px 24px;border-radius:6px;text-decoration:none;margin-top:8px;">
+          <a href="https://alimentosconscientes.es/mensajes" style="display:inline-block;background:#4a7c59;color:white;padding:10px 24px;border-radius:6px;text-decoration:none;margin-top:8px;">
             Ver mensaje
           </a>
           <p style="color:#999;font-size:12px;margin-top:24px;">
-            Recibes este email porque alguien te envió un mensaje en alimentosbiodinamicos.es
+            Recibes este email porque alguien te envió un mensaje en alimentosconscientes.es
           </p>
         </div>
       `,
@@ -417,5 +417,5 @@ app.use((req, res) => {
 // START
 // ==========================================
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🌿 Alimentos Biodinámicos running on http://0.0.0.0:${PORT}`);
+  console.log(`🌿 Alimentos Conscientes running on http://0.0.0.0:${PORT}`);
 });
