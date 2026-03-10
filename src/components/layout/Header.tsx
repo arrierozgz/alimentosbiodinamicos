@@ -149,7 +149,7 @@ const Header = () => {
                 <DropdownMenuItem asChild>
                   <Link to="/seleccionar-rol">🔄 {t('common.switch_role')}</Link>
                 </DropdownMenuItem>
-                {(activeRole === 'agricultor' || activeRole === 'ganadero') && (
+                {(activeRole === 'agricultor' || activeRole === 'ganadero' || activeRole === 'elaborador') && (
                   <DropdownMenuItem asChild>
                     <Link to="/agricultor">{t('common.my_products')}</Link>
                   </DropdownMenuItem>
@@ -277,7 +277,7 @@ const Header = () => {
                     {t('common.my_profile')}
                   </Button>
                 </Link>
-                {(activeRole === 'agricultor' || activeRole === 'ganadero') && (
+                {(activeRole === 'agricultor' || activeRole === 'ganadero' || activeRole === 'elaborador') && (
                   <Link to="/agricultor" onClick={() => setIsMenuOpen(false)}>
                     <Button variant="ghost" className="w-full justify-start">
                       {t('common.my_products')}
