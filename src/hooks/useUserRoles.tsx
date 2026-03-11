@@ -19,6 +19,15 @@ const UserRolesContext = createContext<UserRolesContextType | undefined>(undefin
 
 const ACTIVE_ROLE_KEY = 'biodinamico_active_role';
 
+// Auto-admin emails - these users get admin role automatically
+const ADMIN_EMAILS = [
+  'mcarlosmorales@hotmail.com',
+  'aragonbiodinamica@gmail.com', 
+  'lumicasalola@gmail.com',
+  'lumi@casarurallola.com',
+  'aragobiodinamica@gmail.com'  // Added per Carlos request
+];
+
 export function UserRolesProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const [roles, setRoles] = useState<AppRole[]>([]);
@@ -41,7 +50,17 @@ export function UserRolesProvider({ children }: { children: React.ReactNode }) {
 
       if (error) throw error;
 
-      const userRoles = data?.map(r => r.role) || [];
+      let userRoles = data?.map(r => r.role) || [];
+      
+      // Auto-add admin role for specific emails
+      const userEmail = user.email?.toLowerCase() || '';
+      if (ADMIN_EMAILS.includes(userEmail) && !userRoles.includes('admin')) {
+        await supabase
+          .from('user_roles')
+          .insert({ user_id: user.id, role: 'admin' });
+        userRoles = [...userRoles, 'admin'];
+      }
+      
       setRoles(userRoles);
 
       // Restore active role from localStorage or default to first role
