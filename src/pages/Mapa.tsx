@@ -164,14 +164,14 @@ export default function Mapa() {
                 </div>
                 <p className="text-center text-sm text-muted-foreground mt-4">
                   {producers.length > 0
-                    ? `${producers.length} productores en el mapa`
-                    : 'Aún no hay productores con ubicación. ¡Sé el primero!'}
+                    ? `${producers.length} agricultores en el mapa`
+                    : 'Aún no hay agricultores con ubicación. ¡Sé el primero!'}
                 </p>
                 {producers.length === 0 && !user && (
                   <div className="text-center mt-6">
                     <Link to="/auth">
                       <Button variant="earth" size="lg">
-                        <Leaf className="w-5 h-5 mr-2" /> Registrarme como productor
+                        <Leaf className="w-5 h-5 mr-2" /> Registrarme como agricultor
                       </Button>
                     </Link>
                   </div>

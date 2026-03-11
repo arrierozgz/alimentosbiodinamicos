@@ -40,7 +40,7 @@ export default function Privacidad() {
 
             <h2 className="font-display text-2xl font-semibold text-foreground mt-8">3. Finalidad del tratamiento</h2>
             <ul className="list-disc pl-6 space-y-1">
-              <li>Permitir el funcionamiento del directorio: que productores y consumidores puedan encontrarse.</li>
+              <li>Permitir el funcionamiento del directorio: que agricultores y consumidores puedan encontrarse.</li>
               <li>Facilitar la comunicación directa entre usuarios registrados.</li>
               <li>Enviar notificaciones por email relacionadas con mensajes recibidos en la plataforma.</li>
             </ul>

@@ -27,7 +27,7 @@ export default function Terminos() {
             <h2 className="font-display text-2xl font-semibold text-foreground">1. Qué es Alimentos Conscientes</h2>
             <p>
               Alimentos Conscientes es un <strong>directorio gratuito y sin ánimo de lucro</strong> que facilita el encuentro directo 
-              entre productores (agricultores, ganaderos, elaboradores) y consumidores de alimentos ecológicos, biodinámicos y de proximidad en España.
+              entre agricultores (agricultores, ganaderos, elaboradores) y consumidores de alimentos ecológicos, biodinámicos y de proximidad en España.
             </p>
             <p>
               <strong>No somos intermediarios</strong>. No vendemos productos, no gestionamos pagos ni envíos, 
@@ -46,7 +46,7 @@ export default function Terminos() {
             <p>Al publicar información en el directorio:</p>
             <ul className="list-disc pl-6 space-y-1">
               <li>Declaras que la información es <strong>veraz y propia</strong>.</li>
-              <li>Aceptas que tu perfil de productor será <strong>visible públicamente</strong>.</li>
+              <li>Aceptas que tu perfil de agricultor será <strong>visible públicamente</strong>.</li>
               <li>No publicarás contenido ilegal, ofensivo, engañoso o que infrinja derechos de terceros.</li>
               <li>Las fotografías que subas deben ser tuyas o tener permiso para usarlas.</li>
             </ul>
@@ -59,15 +59,15 @@ export default function Terminos() {
 
             <h2 className="font-display text-2xl font-semibold text-foreground mt-8">5. Certificaciones y sellos</h2>
             <p>
-              Los productores que indiquen certificaciones (Ecológico, Biodinámico, Demeter) son responsables de la veracidad de dicha información. 
+              Los agricultores que indiquen certificaciones (Ecológico, Biodinámico, Demeter) son responsables de la veracidad de dicha información. 
               Alimentos Conscientes <strong>no verifica certificaciones</strong> — recomendamos a los consumidores solicitar la documentación 
-              directamente al productor.
+              directamente al agricultor.
             </p>
 
             <h2 className="font-display text-2xl font-semibold text-foreground mt-8">6. Sin garantías comerciales</h2>
             <p>
               Al no ser intermediarios, <strong>no nos hacemos responsables</strong> de la calidad, precio, disponibilidad o entrega 
-              de los productos ofrecidos por los productores. Cualquier relación comercial es exclusivamente entre el productor y el consumidor.
+              de los productos ofrecidos por los agricultores. Cualquier relación comercial es exclusivamente entre el agricultor y el consumidor.
             </p>
 
             <h2 className="font-display text-2xl font-semibold text-foreground mt-8">7. Propiedad intelectual</h2>
