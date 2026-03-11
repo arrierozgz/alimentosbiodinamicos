@@ -7,7 +7,7 @@ import 'leaflet/dist/leaflet.css';
 import { supabase } from '@/integrations/supabase/client';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import { Leaf, MapPin, Loader2 } from 'lucide-react';
+import { Leaf, MapPin, Loader2, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -25,41 +25,12 @@ const greenIcon = new L.Icon({
   iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41],
 });
 
-// Spanish provinces with approximate coordinates
-const PROVINCE_COORDS: Record<string, [number, number]> = {
-  'álava': [42.85, -2.67], 'albacete': [38.99, -1.86], 'alicante': [38.35, -0.48],
-  'almería': [36.84, -2.47], 'asturias': [43.36, -5.85], 'ávila': [40.66, -4.68],
-  'badajoz': [38.88, -6.97], 'barcelona': [41.39, 2.17], 'burgos': [42.34, -3.70],
-  'cáceres': [39.47, -6.37], 'cádiz': [36.53, -6.28], 'cantabria': [43.18, -3.99],
-  'castellón': [39.99, -0.03], 'ciudad real': [38.99, -3.93], 'córdoba': [37.89, -4.78],
-  'cuenca': [40.07, -2.14], 'gerona': [41.98, 2.82], 'girona': [41.98, 2.82],
-  'granada': [37.18, -3.60], 'guadalajara': [40.63, -3.17], 'guipúzcoa': [43.32, -1.98],
-  'huelva': [37.26, -6.95], 'huesca': [42.14, -0.41], 'jaén': [37.77, -3.79],
-  'la rioja': [42.29, -2.52], 'las palmas': [28.10, -15.42], 'león': [42.60, -5.57],
-  'lérida': [41.62, 0.63], 'lleida': [41.62, 0.63], 'lugo': [43.01, -7.56],
-  'madrid': [40.42, -3.70], 'málaga': [36.72, -4.42], 'murcia': [37.99, -1.13],
-  'navarra': [42.82, -1.64], 'orense': [42.34, -7.86], 'ourense': [42.34, -7.86],
-  'palencia': [42.01, -4.53], 'pontevedra': [42.43, -8.65],
-  'salamanca': [40.96, -5.66], 'segovia': [40.95, -4.12],
-  'sevilla': [37.39, -5.99], 'soria': [41.76, -2.47],
-  'tarragona': [41.12, 1.25], 'tenerife': [28.47, -16.25], 'teruel': [40.34, -1.11],
-  'toledo': [39.86, -4.02], 'valencia': [39.47, -0.38], 'valladolid': [41.65, -4.72],
-  'vizcaya': [43.26, -2.92], 'zamora': [41.50, -5.75], 'zaragoza': [41.65, -0.89],
-};
-
-function getCoords(location?: string, province?: string): [number, number] | null {
-  const prov = (province || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  const loc = (location || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  
-  for (const [key, coords] of Object.entries(PROVINCE_COORDS)) {
-    const normKey = key.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    if (prov.includes(normKey) || loc.includes(normKey)) {
-      // Add small random offset to avoid stacking
-      return [coords[0] + (Math.random() - 0.5) * 0.1, coords[1] + (Math.random() - 0.5) * 0.1];
-    }
-  }
-  return null;
-}
+// Certification filter options - BIODINÁMICO first (uppercase), rest lowercase
+const CERT_FILTERS = [
+  { key: 'biodinamico', label: 'BIODINÁMICO', color: 'bg-amber-600 hover:bg-amber-700 text-white' },
+  { key: 'demeter', label: 'demeter', color: 'bg-green-700 hover:bg-green-800 text-white' },
+  { key: 'ecologico', label: 'ecológico', color: 'bg-emerald-600 hover:bg-emerald-700 text-white' },
+] as const;
 
 interface Producer {
   user_id: string;
@@ -69,14 +40,16 @@ interface Producer {
   presentation?: string;
   latitude?: number;
   longitude?: number;
+  certifications?: string[];
   coords: [number, number];
 }
 
 export default function Mapa() {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const [producers, setProducers] = useState<Producer[]>([]);
+  const [allProducers, setAllProducers] = useState<Producer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
 
   useEffect(() => {
     fetchProducers();
@@ -85,26 +58,49 @@ export default function Mapa() {
   const fetchProducers = async () => {
     try {
       const { data } = await supabase
-        .from('farmer_profiles_public' as any)
-        .select('user_id, farm_name, approximate_location, province, presentation, latitude, longitude');
+        .from('farmer_map_view' as any)
+        .select('user_id, farm_name, approximate_location, province, presentation, latitude, longitude, certifications');
 
       if (data) {
         const mapped = (data as any[])
           .map((p) => {
-            // Use real coordinates from DB if available, fallback to province matching
             const coords = (p.latitude && p.longitude)
               ? [p.latitude, p.longitude] as [number, number]
-              : getCoords(p.approximate_location, p.province);
+              : null;
             return coords ? { ...p, coords } : null;
           })
           .filter(Boolean) as Producer[];
-        setProducers(mapped);
+        setAllProducers(mapped);
       }
     } catch (e) {
       console.error('Error loading producers:', e);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Filter producers based on active certification filter
+  const filteredProducers = activeFilter
+    ? allProducers.filter((p) => {
+        const certs = p.certifications || [];
+        if (activeFilter === 'ecologico') {
+          return certs.some((c) => c === 'ecologico' || c === 'ecologico_certificado');
+        }
+        return certs.includes(activeFilter);
+      })
+    : allProducers;
+
+  const handleFilterClick = (key: string) => {
+    setActiveFilter(activeFilter === key ? null : key);
+  };
+
+  // Get certification badges for popup
+  const getCertBadges = (certs: string[]) => {
+    const badges: string[] = [];
+    if (certs.includes('biodinamico')) badges.push('🌾 Biodinámico');
+    if (certs.includes('demeter')) badges.push('🏅 Demeter');
+    if (certs.some((c) => c === 'ecologico' || c === 'ecologico_certificado')) badges.push('🌿 Ecológico');
+    return badges;
   };
 
   return (
@@ -128,6 +124,33 @@ export default function Mapa() {
 
         <section className="py-6">
           <div className="container max-w-5xl">
+            {/* Certification filters */}
+            <div className="flex flex-wrap items-center justify-center gap-3 mb-4">
+              <Filter className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground mr-1">Filtrar por certificación:</span>
+              {CERT_FILTERS.map((f) => (
+                <button
+                  key={f.key}
+                  onClick={() => handleFilterClick(f.key)}
+                  className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${
+                    activeFilter === f.key
+                      ? `${f.color} ring-2 ring-offset-2 ring-black/20 scale-105`
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+              {activeFilter && (
+                <button
+                  onClick={() => setActiveFilter(null)}
+                  className="px-3 py-1.5 rounded-full text-xs bg-red-100 text-red-700 hover:bg-red-200 transition-all"
+                >
+                  ✕ Quitar filtro
+                </button>
+              )}
+            </div>
+
             {loading ? (
               <div className="flex justify-center py-20">
                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -148,12 +171,15 @@ export default function Mapa() {
                       attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                       url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     />
-                    {producers.map((p) => (
+                    {filteredProducers.map((p) => (
                       <Marker key={p.user_id} position={p.coords} icon={greenIcon}>
                         <Popup>
                           <div className="text-sm">
                             <strong className="text-base">{p.farm_name}</strong>
                             {p.approximate_location && <p className="mt-1">📍 {p.approximate_location}{p.province ? `, ${p.province}` : ''}</p>}
+                            {p.certifications && p.certifications.length > 0 && (
+                              <p className="mt-1">{getCertBadges(p.certifications).join(' · ')}</p>
+                            )}
                             {p.presentation && <p className="mt-1 text-gray-600">{p.presentation}</p>}
                             <a href="/explorar" className="mt-2 inline-block text-green-700 font-medium hover:underline">Ver en listín →</a>
                           </div>
@@ -163,11 +189,15 @@ export default function Mapa() {
                   </MapContainer>
                 </div>
                 <p className="text-center text-sm text-muted-foreground mt-4">
-                  {producers.length > 0
-                    ? `${producers.length} agricultores en el mapa`
-                    : 'Aún no hay agricultores con ubicación. ¡Sé el primero!'}
+                  {filteredProducers.length > 0
+                    ? activeFilter
+                      ? `${filteredProducers.length} de ${allProducers.length} agricultores (filtro activo)`
+                      : `${allProducers.length} agricultores en el mapa`
+                    : activeFilter
+                      ? 'Ningún agricultor con esta certificación. Prueba otro filtro.'
+                      : 'Aún no hay agricultores con ubicación. ¡Sé el primero!'}
                 </p>
-                {producers.length === 0 && !user && (
+                {allProducers.length === 0 && !user && (
                   <div className="text-center mt-6">
                     <Link to="/auth">
                       <Button variant="earth" size="lg">
