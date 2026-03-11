@@ -2,7 +2,7 @@ import { useState, useEffect, createContext, useContext, useCallback } from 'rea
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 
-type AppRole = 'consumidor' | 'agricultor' | 'ganadero' | 'elaborador';
+type AppRole = 'consumidor' | 'agricultor' | 'ganadero' | 'elaborador' | 'admin';
 
 interface UserRolesContextType {
   roles: AppRole[];

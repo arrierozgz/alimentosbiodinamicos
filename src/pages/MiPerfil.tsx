@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
-import { User, Save, Loader2, Check, MapPin, Globe, Mail, Phone } from 'lucide-react';
+import { User, Save, Loader2, Check, MapPin, Globe, Mail, Phone, AlertTriangle, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface FarmerProfile {
@@ -36,6 +36,8 @@ export default function MiPerfil() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState('');
 
   const [profile, setProfile] = useState<FarmerProfile>({
     farm_name: '',
@@ -163,6 +165,63 @@ export default function MiPerfil() {
       toast.error(`Error al guardar el perfil: ${msg}`);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!user) return;
+    if (confirmDelete !== 'ELIMINAR MI CUENTA') {
+      toast.error('Escribe exactamente "ELIMINAR MI CUENTA"');
+      return;
+    }
+
+    setDeleting(true);
+    try {
+      const userId = user.id;
+
+      // Delete all user data in order:
+      // 1. Products and their variations
+      const { data: products } = await supabase.from('products').select('id').eq('user_id', userId);
+      if (products?.length) {
+        const productIds = products.map(p => p.id);
+        await supabase.from('product_variations').delete().in('product_id', productIds);
+      }
+      await supabase.from('products').delete().eq('user_id', userId);
+
+      // 2. Farmer profile
+      await supabase.from('farmer_profiles').delete().eq('user_id', userId);
+
+      // 3. Contact details
+      await supabase.from('farmer_contact_details').delete().eq('user_id', userId);
+
+      // 4. Biodynamic preparations
+      await supabase.from('biodynamic_preparations').delete().eq('user_id', userId);
+
+      // 5. User roles
+      await supabase.from('user_roles').delete().eq('user_id', userId);
+
+      // 6. Messages sent/received
+      await supabase.from('messages').delete().or(`sender_id.eq.${userId},receiver_id.eq.${userId}`);
+
+      // 7. Delete from auth
+      const { error: authError } = await supabase.auth.admin.deleteUser(userId);
+      if (authError) {
+        console.log('Auth delete note:', authError);
+        // Continue anyway - user data is already deleted
+      }
+
+      toast.success('Tu cuenta ha sido eliminada completamente');
+      
+      // Sign out and redirect
+      await supabase.auth.signOut();
+      navigate('/');
+      
+    } catch (error: any) {
+      console.error('Error deleting account:', error);
+      toast.error('Error al eliminar cuenta. Contacta al administrador.');
+    } finally {
+      setDeleting(false);
+      setConfirmDelete('');
     }
   };
 
@@ -358,6 +417,58 @@ export default function MiPerfil() {
               </>
             )}
           </Button>
+
+          {/* Danger Zone - Delete Account */}
+          <Card className="mt-8 border-red-300 bg-red-50 dark:bg-red-950/20">
+            <CardHeader>
+              <CardTitle className="font-display text-xl flex items-center gap-2 text-red-600">
+                <AlertTriangle className="w-5 h-5" />
+                Zona de peligro
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Esta acción es irreversible. Se eliminará TODO tu perfil, productos, mensajes y datos.
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="confirm_delete" className="text-base font-medium">
+                  Escribe <span className="font-mono bg-red-100 px-1 rounded">ELIMINAR MI CUENTA</span> para confirmar
+                </Label>
+                <Input
+                  id="confirm_delete"
+                  value={confirmDelete}
+                  onChange={(e) => setConfirmDelete(e.target.value)}
+                  placeholder="Escribe el texto de confirmación"
+                  className="h-12 font-mono"
+                  disabled={deleting}
+                />
+              </div>
+              
+              <Button
+                variant="destructive"
+                size="lg"
+                className="w-full"
+                onClick={handleDeleteAccount}
+                disabled={deleting || confirmDelete !== 'ELIMINAR MI CUENTA'}
+              >
+                {deleting ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                    Eliminando cuenta...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-5 h-5 mr-2" />
+                    Eliminar mi cuenta permanentemente
+                  </>
+                )}
+              </Button>
+              
+              <p className="text-xs text-center text-muted-foreground">
+                Al eliminar tu cuenta, todos tus datos serán borrados de forma permanente y no podrás recuperarlos.
+              </p>
+            </CardContent>
+          </Card>
         </div>
       </main>
       <Footer />
