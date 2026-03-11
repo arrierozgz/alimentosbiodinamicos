@@ -62,6 +62,7 @@ export default function Explorar() {
   const { user } = useAuth();
   const initialMode = searchParams.get('modo') || '';
   const initialSearch = searchParams.get('buscar') || '';
+  const initialCert = searchParams.get('cert') || '';
 
   const [farmers, setFarmers] = useState<FarmerProfile[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -74,9 +75,9 @@ export default function Explorar() {
   const [filterCategory, setFilterCategory] = useState('');
   const [filterVariety, setFilterVariety] = useState('');
   const [filterPackaging, setFilterPackaging] = useState('');
-  const [filterCertification, setFilterCertification] = useState('');
+  const [filterCertification, setFilterCertification] = useState(initialCert);
   const [filterLocation, setFilterLocation] = useState('');
-  const [showFilters, setShowFilters] = useState(initialMode === 'producto' || initialMode === 'cercania');
+  const [showFilters, setShowFilters] = useState(!!initialCert || initialMode === 'producto' || initialMode === 'cercania');
   const [expandedFarmer, setExpandedFarmer] = useState<string | null>(null);
 
   useEffect(() => {

@@ -115,7 +115,8 @@
     "role_shop_desc": "Tienda de productos ecológicos",
     "role_shop_f1": "Publica tus productos eco",
     "role_shop_f2": "Contacto directo con clientes",
-    "role_shop_f3": "Limpieza, higiene, cosmética..."
+    "role_shop_f3": "Limpieza, higiene, cosmética...",
+    "filter_by": "Filtrar por certificación"
   },
   "auth": {
     "title_login": "Iniciar sesión",

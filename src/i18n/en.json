@@ -115,7 +115,8 @@
     "role_shop_desc": "Eco product shop",
     "role_shop_f1": "List your eco products",
     "role_shop_f2": "Direct contact with customers",
-    "role_shop_f3": "Cleaning, hygiene, cosmetics..."
+    "role_shop_f3": "Cleaning, hygiene, cosmetics...",
+    "filter_by": "Filter by certification"
   },
   "auth": {
     "title_login": "Log in",

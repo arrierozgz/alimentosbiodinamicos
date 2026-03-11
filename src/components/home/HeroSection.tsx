@@ -62,6 +62,26 @@ const HeroSection = () => {
               </Button>
             </form>
 
+            {/* Certification quick filters */}
+            <div className="flex flex-wrap gap-3 justify-center lg:justify-start mb-8 animate-fade-up" style={{ animationDelay: "0.35s" }}>
+              <span className="text-sm text-muted-foreground self-center mr-1">{t('home.filter_by')}:</span>
+              <Link to="/explorar?cert=biodinamico">
+                <span className="px-4 py-2 rounded-full text-sm font-bold bg-amber-600 hover:bg-amber-700 text-white cursor-pointer transition-all hover:scale-105 shadow-sm">
+                  BIODINÁMICO
+                </span>
+              </Link>
+              <Link to="/explorar?cert=demeter">
+                <span className="px-4 py-2 rounded-full text-sm font-semibold bg-green-700 hover:bg-green-800 text-white cursor-pointer transition-all hover:scale-105 shadow-sm">
+                  demeter
+                </span>
+              </Link>
+              <Link to="/explorar?cert=ecologico">
+                <span className="px-4 py-2 rounded-full text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer transition-all hover:scale-105 shadow-sm">
+                  ecológico
+                </span>
+              </Link>
+            </div>
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-fade-up" style={{ animationDelay: "0.4s" }}>
               {!user && (
                 <Link to="/auth">
