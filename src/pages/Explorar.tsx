@@ -47,6 +47,7 @@ interface FarmerProfile {
   postal_code: string | null;
   contact_web: string | null;
   activity_types: string[];
+  certifications?: string[] | null;
 }
 
 interface FarmerContact {
