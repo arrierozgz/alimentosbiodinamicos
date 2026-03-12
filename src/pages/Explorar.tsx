@@ -95,7 +95,7 @@ export default function Explorar() {
   const fetchData = async () => {
     try {
       const [profilesRes, productsRes, variationsRes, contactsRes] = await Promise.all([
-        supabase.from('farmer_profiles_public' as any).select('*'),
+        supabase.from('farmer_map_view' as any).select('*'),
         supabase.from('products').select('*').eq('is_active', true),
         supabase.from('product_variations').select('*'),
         supabase.from('farmer_contact_details' as any).select('*'),
