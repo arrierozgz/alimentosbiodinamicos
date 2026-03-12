@@ -196,6 +196,14 @@ export default function Explorar() {
 
     const productUserIds = new Set(matchingProducts.map(p => p.user_id));
 
+    // Also match farmers with that certification (even if their products don't have it)
+    if (filterCertification) {
+      const farmersWithCert = farmers
+        .filter(f => f.certifications?.includes(filterCertification))
+        .map(f => f.user_id);
+      farmersWithCert.forEach(uid => productUserIds.add(uid));
+    }
+
     // Filter farmers
     let matchedFarmers = farmers;
     if (filterCategory || filterCertification || filterVariety || filterPackaging || searchTerm) {
