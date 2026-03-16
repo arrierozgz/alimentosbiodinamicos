@@ -11,7 +11,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
-import { User, Save, Loader2, Check, MapPin, Globe, Mail, Phone, AlertTriangle, Trash2 } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { User, Save, Loader2, Check, MapPin, Globe, Mail, Phone, AlertTriangle, Trash2, Wheat, ShoppingBag, Beaker, Store } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface FarmerProfile {
@@ -31,7 +32,7 @@ interface ContactDetails {
 
 export default function MiPerfil() {
   const { user, loading: authLoading } = useAuth();
-  const { roles } = useUserRoles();
+  const { roles, addRole, removeRole } = useUserRoles();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -106,8 +107,14 @@ export default function MiPerfil() {
 
   const handleSave = async () => {
     if (!user) return;
-    if (!profile.farm_name.trim()) {
-      toast.error('El nombre de la finca es obligatorio');
+    const errors: string[] = [];
+    if (!profile.farm_name.trim()) errors.push('Nombre de la finca es obligatorio');
+    if (profile.postal_code && !/^\d{5}$/.test(profile.postal_code)) errors.push('Código postal debe tener 5 dígitos');
+    if (profile.contact_web && !profile.contact_web.startsWith('http')) errors.push('La web debe empezar con http:// o https://');
+    if (contact.contact_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.contact_email)) errors.push('Email de contacto no válido');
+    
+    if (errors.length > 0) {
+      errors.forEach(e => toast.error(e));
       return;
     }
 
@@ -391,6 +398,64 @@ export default function MiPerfil() {
                   placeholder="600 000 000"
                   className="h-14 text-lg"
                 />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Roles */}
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="font-display text-xl">Mis roles</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Puedes cambiar tus roles en cualquier momento.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-3">
+                {([
+                  { role: 'consumidor' as const, label: 'Consumidor', desc: 'Busco alimentos conscientes', icon: <ShoppingBag className="w-5 h-5" /> },
+                  { role: 'agricultor' as const, label: 'Agricultor / Ganadero', desc: 'Produzco alimentos', icon: <Wheat className="w-5 h-5" /> },
+                  { role: 'elaborador' as const, label: 'Elaborador', desc: 'Transformo materias primas', icon: <Beaker className="w-5 h-5" /> },
+                  { role: 'tienda' as const, label: 'Tienda', desc: 'Vendo productos conscientes', icon: <Store className="w-5 h-5" /> },
+                ]).map(({ role, label, desc, icon }) => {
+                  const active = roles.includes(role);
+                  return (
+                    <div
+                      key={role}
+                      onClick={async () => {
+                        if (active) {
+                          if (roles.length <= 1) {
+                            toast.error('Necesitas al menos un rol');
+                            return;
+                          }
+                          const { error } = await removeRole(role);
+                          if (error) toast.error('Error al quitar rol');
+                          else toast.success(`Rol "${label}" eliminado`);
+                        } else {
+                          const { error } = await addRole(role);
+                          if (error) toast.error('Error al añadir rol');
+                          else toast.success(`Rol "${label}" añadido`);
+                        }
+                      }}
+                      className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all ${
+                        active ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/30'
+                      }`}
+                    >
+                      <div className={`p-2 rounded-full ${active ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+                        {icon}
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-medium">{label}</div>
+                        <div className="text-xs text-muted-foreground">{desc}</div>
+                      </div>
+                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                        active ? 'border-primary bg-primary' : 'border-muted-foreground'
+                      }`}>
+                        {active && <Check className="w-3 h-3 text-primary-foreground" />}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>

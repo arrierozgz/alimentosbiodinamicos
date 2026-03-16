@@ -181,7 +181,7 @@ export default function Mapa() {
                               <p className="mt-1">{getCertBadges(p.certifications).join(' · ')}</p>
                             )}
                             {p.presentation && <p className="mt-1 text-gray-600">{p.presentation}</p>}
-                            <a href="/explorar" className="mt-2 inline-block text-green-700 font-medium hover:underline">Ver en listín →</a>
+                            <a href="/explorar" className="mt-2 inline-block text-green-700 font-medium hover:underline" onClick={(e) => { e.preventDefault(); window.location.href = '/explorar'; }}>Ver productos →</a>
                           </div>
                         </Popup>
                       </Marker>

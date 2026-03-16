@@ -146,7 +146,7 @@ export function ProductForm({ open, onClose, onSave, initialData, loading }: Pro
               <SelectTrigger className="h-12 text-base">
                 <SelectValue placeholder="Selecciona categoría" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent position="popper" className="max-h-[300px] overflow-y-auto z-[9999]">
                 {PRODUCT_CATEGORIES.map((cat) => (
                   <SelectItem key={cat} value={cat}>
                     {PRODUCT_CATEGORY_EMOJIS[cat] || ''} {cat}
@@ -213,7 +213,7 @@ export function ProductForm({ open, onClose, onSave, initialData, loading }: Pro
               <SelectTrigger className="h-12 text-base">
                 <SelectValue placeholder="Selecciona temporada" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent position="popper" className="max-h-[300px] overflow-y-auto z-[9999]">
                 {SEASONS.map((s) => (
                   <SelectItem key={s} value={s}>{s}</SelectItem>
                 ))}
@@ -262,7 +262,7 @@ export function ProductForm({ open, onClose, onSave, initialData, loading }: Pro
                     <SelectTrigger className="h-10 text-sm">
                       <SelectValue placeholder="Envase" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent position="popper" className="max-h-[300px] overflow-y-auto z-[9999]">
                       {PACKAGING_OPTIONS.map((p) => (
                         <SelectItem key={p} value={p}>{p}</SelectItem>
                       ))}
@@ -286,7 +286,7 @@ export function ProductForm({ open, onClose, onSave, initialData, loading }: Pro
                     <SelectTrigger className="h-10 text-sm">
                       <SelectValue placeholder="Unidad" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent position="popper" className="max-h-[300px] overflow-y-auto z-[9999]">
                       <SelectItem value="kg">por kg</SelectItem>
                       <SelectItem value="g">por g</SelectItem>
                       <SelectItem value="litro">por litro</SelectItem>
