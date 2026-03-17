@@ -88,6 +88,7 @@ export type Database = {
           presentation: string | null
           updated_at: string
           user_id: string
+          wants_training: boolean
         }
         Insert: {
           activity_types?: Database["public"]["Enums"]["app_role"][]
@@ -102,6 +103,7 @@ export type Database = {
           presentation?: string | null
           updated_at?: string
           user_id: string
+          wants_training?: boolean
         }
         Update: {
           activity_types?: Database["public"]["Enums"]["app_role"][]
@@ -116,6 +118,7 @@ export type Database = {
           presentation?: string | null
           updated_at?: string
           user_id?: string
+          wants_training?: boolean
         }
         Relationships: []
       }

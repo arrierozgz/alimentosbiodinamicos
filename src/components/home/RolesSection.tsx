@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { ShoppingBasket, Tractor, Beaker, Store, ArrowRight } from "lucide-react";
+import { ShoppingBasket, Tractor, Beaker, Store, ArrowRight, Sprout } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 const RolesSection = () => {
@@ -53,6 +53,27 @@ const RolesSection = () => {
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             {t('home.roles_subtitle')}
           </p>
+        </div>
+
+        {/* Banner formación práctica agricultores */}
+        <div className="mb-10 p-6 md:p-8 rounded-2xl bg-accent/10 border-2 border-accent/30 text-center animate-fade-up">
+          <div className="flex justify-center mb-3">
+            <div className="w-12 h-12 bg-accent/20 rounded-full flex items-center justify-center">
+              <Sprout className="w-6 h-6 text-accent" />
+            </div>
+          </div>
+          <h3 className="font-display text-xl md:text-2xl font-semibold text-foreground mb-2">
+            {t('home.farmer_training_title')}
+          </h3>
+          <p className="text-muted-foreground text-base md:text-lg mb-4 max-w-xl mx-auto">
+            {t('home.farmer_training_text')}
+          </p>
+          <a href="mailto:info@alimentosconscientes.es">
+            <Button variant="warm" size="lg" className="gap-2">
+              {t('home.farmer_training_cta')}
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </a>
         </div>
 
         <div className="grid md:grid-cols-3 gap-6 md:gap-8">

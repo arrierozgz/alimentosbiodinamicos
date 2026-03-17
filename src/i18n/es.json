@@ -116,7 +116,10 @@
     "role_shop_f1": "Publica tus productos eco",
     "role_shop_f2": "Contacto directo con clientes",
     "role_shop_f3": "Limpieza, higiene, cosmética...",
-    "filter_by": "Filtrar por certificación"
+    "filter_by": "Filtrar por certificación",
+    "farmer_training_title": "🌱 Agricultor",
+    "farmer_training_text": "¿Quieres recibir formación práctica en agricultura ecológica? ¡Ponte en contacto con nosotros!",
+    "farmer_training_cta": "Contáctanos"
   },
   "auth": {
     "title_login": "Iniciar sesión",
@@ -235,7 +238,9 @@
     "product_deleted": "Producto eliminado",
     "name_required": "El nombre es obligatorio",
     "profile_btn": "Perfil",
-    "confirm_delete_product": "¿Eliminar este producto?"
+    "confirm_delete_product": "¿Eliminar este producto?",
+    "wants_training": "🌱 ¿Quieres recibir formación práctica en agricultura ecológica?",
+    "wants_training_hint": "Ponte en contacto con nosotros y te informamos"
   },
   "product_form": {
     "new_product": "Nuevo Producto",

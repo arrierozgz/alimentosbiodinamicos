@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { ProductForm, type ProductFormData } from '@/components/agricultor/ProductForm';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Plus, Leaf, LogOut, Loader2, MapPin, Phone, Mail, Globe, Edit, Trash2, Eye, EyeOff, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import { PRODUCT_CATEGORY_EMOJIS, CERTIFICATION_TYPES } from '@/lib/catalogo';
@@ -32,6 +33,7 @@ interface FarmerProfile {
   postal_code: string;
   contact_web: string;
   presentation: string;
+  wants_training: boolean;
 }
 
 interface ContactDetails {
@@ -52,7 +54,7 @@ export default function Agricultor() {
   const [savingProfile, setSavingProfile] = useState(false);
 
   const [profile, setProfile] = useState<FarmerProfile>({
-    farm_name: '', approximate_location: '', province: '', postal_code: '', contact_web: '', presentation: '',
+    farm_name: '', approximate_location: '', province: '', postal_code: '', contact_web: '', presentation: '', wants_training: false,
   });
   const [contact, setContact] = useState<ContactDetails>({ contact_email: '', contact_phone: '' });
 
@@ -95,6 +97,7 @@ export default function Agricultor() {
           postal_code: p.postal_code || '',
           contact_web: p.contact_web || '',
           presentation: p.presentation || '',
+          wants_training: p.wants_training || false,
         });
         if (!p.farm_name) setShowProfile(true);
       } else {
@@ -151,6 +154,7 @@ export default function Agricultor() {
         presentation: profile.presentation || null,
         activity_types: ['agricultor'],
         is_public: true,
+        wants_training: profile.wants_training,
         ...(latitude && longitude ? { latitude, longitude } : {}),
       };
 
@@ -390,6 +394,21 @@ export default function Agricultor() {
                   placeholder="www.mifinca.com"
                   className="h-11"
                 />
+              </div>
+
+              <div className="flex items-start gap-3 p-4 rounded-lg bg-primary/5 border border-primary/20">
+                <Checkbox
+                  id="wants_training"
+                  checked={profile.wants_training}
+                  onCheckedChange={(checked) => setProfile({ ...profile, wants_training: checked === true })}
+                  className="mt-0.5"
+                />
+                <div className="flex-1">
+                  <label htmlFor="wants_training" className="text-sm font-medium cursor-pointer leading-relaxed">
+                    {t('farmer_panel.wants_training')}
+                  </label>
+                  <p className="text-xs text-muted-foreground mt-1">{t('farmer_panel.wants_training_hint')}</p>
+                </div>
               </div>
 
               <Button variant="earth" onClick={handleSaveProfile} disabled={savingProfile} className="w-full h-12">
