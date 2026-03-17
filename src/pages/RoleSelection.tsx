@@ -15,6 +15,7 @@ type AppRole = 'consumidor' | 'agricultor' | 'ganadero' | 'elaborador' | 'tienda
 export default function RoleSelection() {
   const { t } = useTranslation();
   const [selectedRoles, setSelectedRoles] = useState<AppRole[]>([]);
+  const [compromisoPreparados, setCompromisoPreparados] = useState(false);
   const [loading, setLoading] = useState(false);
   const { addRole, setActiveRole, roles, loading: rolesLoading } = useUserRoles();
   const { user } = useAuth();
@@ -108,7 +109,27 @@ export default function RoleSelection() {
               </div>
             ))}
           </div>
-          <Button onClick={handleSubmit} variant="earth" size="xl" className="w-full" disabled={loading || selectedRoles.length === 0}>
+
+          {selectedRoles.includes('agricultor') && (
+            <div className="rounded-lg border-2 border-amber-300 bg-amber-50 p-4 space-y-3 animate-fade-in">
+              <h4 className="font-semibold text-amber-900 flex items-center gap-2">
+                🌱 {t('roles.compromiso_title')}
+              </h4>
+              <div className="flex items-start gap-3">
+                <Checkbox
+                  id="compromiso_preparados"
+                  checked={compromisoPreparados}
+                  onCheckedChange={(checked) => setCompromisoPreparados(checked === true)}
+                  className="mt-0.5"
+                />
+                <label htmlFor="compromiso_preparados" className="text-sm text-amber-800 leading-relaxed cursor-pointer">
+                  {t('roles.compromiso_text')}
+                </label>
+              </div>
+            </div>
+          )}
+
+          <Button onClick={handleSubmit} variant="earth" size="xl" className="w-full" disabled={loading || selectedRoles.length === 0 || (selectedRoles.includes('agricultor') && !compromisoPreparados)}>
             {loading ? <span className="flex items-center gap-2"><span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /></span> : t('roles.continue')}
           </Button>
           <p className="text-center text-xs text-muted-foreground">{t('roles.change_later')}</p>

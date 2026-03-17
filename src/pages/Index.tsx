@@ -6,6 +6,7 @@ import ValuesSection from "@/components/home/ValuesSection";
 import RolesSection from "@/components/home/RolesSection";
 import PreparadosPreview from "@/components/home/PreparadosPreview";
 import DisclaimerSection from "@/components/home/DisclaimerSection";
+import FormacionSection from "@/components/home/FormacionSection";
 import CTASection from "@/components/home/CTASection";
 
 const Index = () => {
@@ -15,6 +16,7 @@ const Index = () => {
       <main className="flex-1">
         <HeroSection />
         <DisclaimerSection />
+        <FormacionSection />
         <SteinerQuote />
         <ValuesSection />
         <RolesSection />

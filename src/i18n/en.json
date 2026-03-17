@@ -101,10 +101,10 @@
     "preps_description": "Biodynamic preparations are special substances that vitalize soil and plants. We connect farmers with makers so you can access these preparations directly.",
     "preps_cta": "View all preparations",
     "disclaimer_title": "What is this platform?",
-    "disclaimer_p1": "Alimentos Conscientes is a <strong>simple, free directory</strong> so that conscious farmers and mindful consumers can find each other. We don't sell anything, we don't intermediate — we only facilitate the meeting between people.",
+    "disclaimer_p1": "Alimentos Conscientes is <strong>NOT a directory of organic products</strong>. It is a community of farmers committed to applying <strong>biodynamic preparations</strong> to their land. If you are biodynamic or Demeter, you are already home. If you are organic, we welcome you if you commit to incorporating the preparations.",
     "disclaimer_p2": "All your data belongs to you. At any time you can <strong>download all your information in JSON format</strong> from your profile. This way, if this directory integrates with any association or platform in the future, you can take your entire product catalogue with you.",
     "disclaimer_p3": "By signing up and publishing your data (name, location, products), you accept that <strong>this information will be publicly visible</strong> in the directory so consumers and other farmers can find you. That's the essence of the directory: being visible to connect.",
-    "disclaimer_p4": "This platform is also <strong>open to organic farmers</strong> who want to learn about biodynamic practices. Here you can discover what biodynamic agriculture is, connect with preparation makers, and take the step towards a more conscious form of farming connected to the earth.",
+    "disclaimer_p4": "If you are an organic farmer and want to take the step towards biodynamics, here you will find <strong>preparation makers, practical training and a community</strong> that accompanies you along the way.",
     "disclaimer_badge": "Important",
     "cta_title": "Join the conscious community",
     "cta_description": "Whether you are a consumer, farmer, rancher or preparation maker, here you have a space to connect directly and transparently.",
@@ -119,7 +119,10 @@
     "filter_by": "Filter by certification",
     "farmer_training_title": "🌱 Farmer",
     "farmer_training_text": "Would you like to receive practical training in organic farming? Get in touch with us!",
-    "farmer_training_cta": "Contact us"
+    "farmer_training_cta": "Contact us",
+    "formacion_title": "Organic farmer? Want practical training?",
+    "formacion_text": "If you want to learn how to make and apply biodynamic preparations on your farm, get in touch with us. We'll help you take the step.",
+    "formacion_cta": "Contact"
   },
   "auth": {
     "title_login": "Log in",
@@ -156,6 +159,8 @@
     "continue": "Continue",
     "change_later": "You can add or change roles from your profile at any time.",
     "welcome_community": "Welcome to the community!",
+    "compromiso_title": "Commitment to preparations",
+    "compromiso_text": "By registering as a farmer on Alimentos Conscientes, I commit to learning about and applying biodynamic preparations to my land. I understand that this is what sets this community apart from a simple organic directory.",
     "shop": "Other products",
     "shop_desc": "Eco product shop (cleaning, hygiene, cosmetics...)"
   },
@@ -239,7 +244,8 @@
     "name_required": "Name is required",
     "profile_btn": "Profile",
     "confirm_delete_product": "Delete this product?",
-    "wants_training": "🌱 Would you like to receive practical training in organic farming?",
+    "wants_training": "🌱 Would you like to receive practical training in biodynamic agriculture?",
+    "wants_training_label": "I want to receive practical training in biodynamic agriculture",
     "wants_training_hint": "Get in touch with us and we will inform you"
   },
   "product_form": {

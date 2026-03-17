@@ -101,10 +101,10 @@
     "preps_description": "Los preparados biodinámicos son sustancias especiales que vitalizan el suelo y las plantas. Conectamos a agricultores con elaboradores para que puedas acceder a estos preparados de forma directa.",
     "preps_cta": "Ver todos los preparados",
     "disclaimer_title": "¿Qué es esta plataforma?",
-    "disclaimer_p1": "Alimentos Conscientes es un <strong>listín sencillo y gratuito</strong> para que agricultores con conciencia y consumidores concienciados puedan encontrarse. No vendemos nada, no intermediamos, solo facilitamos el encuentro entre personas.",
+    "disclaimer_p1": "Alimentos Conscientes <strong>NO es un listín de productos ecológicos</strong>. Es una comunidad de agricultores comprometidos con aportar <strong>preparados biodinámicos</strong> a sus tierras. Si eres biodinámico o Demeter, ya estás en casa. Si eres ecológico, te damos la bienvenida si adquieres el compromiso de incorporar los preparados.",
     "disclaimer_p2": "Todos tus datos son tuyos. En cualquier momento puedes <strong>descargar toda tu información en formato JSON</strong> desde tu perfil. Así, si en el futuro este listín se integra con alguna asociación o plataforma, podrás llevar contigo todo tu catálogo de productos sin perder nada.",
     "disclaimer_p3": "Al registrarte y publicar tus datos (nombre, ubicación, productos), aceptas que <strong>esta información será visible públicamente</strong> en el listín para que consumidores y otros agricultores puedan encontrarte. Es la esencia del directorio: ser visible para conectar.",
-    "disclaimer_p4": "Esta plataforma también está <strong>abierta a agricultores ecológicos</strong> que quieran conocer las prácticas biodinámicas. Aquí puedes descubrir qué es la agricultura biodinámica, conectar con elaboradores de preparados y dar el paso hacia una forma de cultivo más consciente y conectada con la tierra.",
+    "disclaimer_p4": "Si eres agricultor ecológico y quieres dar el paso hacia la biodinámica, aquí encontrarás <strong>elaboradores de preparados, formación práctica y una comunidad</strong> que te acompaña en el camino.",
     "disclaimer_badge": "Importante",
     "cta_title": "Únete a la comunidad consciente",
     "cta_description": "Ya seas consumidor, agricultor, ganadero o elaborador de preparados, aquí tienes un espacio para conectar de forma directa y transparente.",
@@ -119,7 +119,10 @@
     "filter_by": "Filtrar por certificación",
     "farmer_training_title": "🌱 Agricultor",
     "farmer_training_text": "¿Quieres recibir formación práctica en agricultura ecológica? ¡Ponte en contacto con nosotros!",
-    "farmer_training_cta": "Contáctanos"
+    "farmer_training_cta": "Contáctanos",
+    "formacion_title": "¿Agricultor ecológico? ¿Quieres formación práctica?",
+    "formacion_text": "Si quieres aprender a elaborar y aplicar preparados biodinámicos en tu finca, ponte en contacto con nosotros. Te ayudamos a dar el paso.",
+    "formacion_cta": "Contactar"
   },
   "auth": {
     "title_login": "Iniciar sesión",
@@ -156,6 +159,8 @@
     "continue": "Continuar",
     "change_later": "Puedes añadir o cambiar roles desde tu perfil en cualquier momento.",
     "welcome_community": "¡Bienvenido/a a la comunidad!",
+    "compromiso_title": "Compromiso con los preparados",
+    "compromiso_text": "Al registrarme como agricultor en Alimentos Conscientes, me comprometo a conocer y aportar preparados biodinámicos a mis tierras. Entiendo que esto es lo que diferencia a esta comunidad de un simple listín ecológico.",
     "shop": "Otros productos",
     "shop_desc": "Tienda de productos ecológicos (limpieza, higiene, cosmética...)"
   },
@@ -239,7 +244,8 @@
     "name_required": "El nombre es obligatorio",
     "profile_btn": "Perfil",
     "confirm_delete_product": "¿Eliminar este producto?",
-    "wants_training": "🌱 ¿Quieres recibir formación práctica en agricultura ecológica?",
+    "wants_training": "🌱 ¿Quieres recibir formación práctica en agricultura biodinámica?",
+    "wants_training_label": "Quiero recibir formación práctica en agricultura biodinámica",
     "wants_training_hint": "Ponte en contacto con nosotros y te informamos"
   },
   "product_form": {
