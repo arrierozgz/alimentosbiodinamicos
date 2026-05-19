@@ -106,7 +106,7 @@ const HeroSection = () => {
 
       <div className="container relative py-16 md:py-24 lg:py-32">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
-          <div className="text-center lg:text-left">
+          <div className="min-w-0 text-center lg:text-left">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6 animate-fade-up">
               <Leaf className="h-4 w-4" />
               {t('home.hero_badge')}
