@@ -15,11 +15,11 @@ const Index = () => {
       <Header />
       <main className="flex-1">
         <HeroSection />
+        <ValuesSection />
+        <RolesSection />
         <DisclaimerSection />
         <FormacionSection />
         <SteinerQuote />
-        <ValuesSection />
-        <RolesSection />
         <PreparadosPreview />
         <CTASection />
       </main>
