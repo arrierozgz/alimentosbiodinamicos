@@ -122,7 +122,7 @@ const HeroSection = () => {
             </p>
 
             {/* Search bar */}
-            <div className="w-full max-w-lg mx-auto lg:mx-0 mb-6 animate-fade-up" style={{ animationDelay: "0.3s" }}>
+            <div className="w-full max-w-full sm:max-w-lg mx-auto lg:mx-0 mb-6 animate-fade-up" style={{ animationDelay: "0.3s" }}>
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
