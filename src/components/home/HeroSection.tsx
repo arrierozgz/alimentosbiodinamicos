@@ -1,16 +1,86 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowRight, Users, Leaf, MapPin, User, Search } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { PRODUCT_CATEGORY_EMOJIS } from "@/lib/catalogo";
+
+interface ProductSuggestion {
+  id: string;
+  name: string;
+  product_type: string | null;
+  photo_url: string | null;
+}
+
+interface ProductVariationSuggestion {
+  id: string;
+  product_id: string;
+  variety: string | null;
+}
+
+const normalizeSearch = (value: string) =>
+  value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
 
 const HeroSection = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
+  const [products, setProducts] = useState<ProductSuggestion[]>([]);
+  const [variations, setVariations] = useState<ProductVariationSuggestion[]>([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const [productsRes, variationsRes] = await Promise.all([
+        supabase
+          .from("products")
+          .select("id,name,product_type,photo_url")
+          .eq("is_active", true)
+          .order("name", { ascending: true }),
+        supabase
+          .from("product_variations")
+          .select("id,product_id,variety"),
+      ]);
+
+      setProducts((productsRes.data || []) as ProductSuggestion[]);
+      setVariations((variationsRes.data || []) as ProductVariationSuggestion[]);
+    };
+
+    fetchProducts();
+  }, []);
+
+  const liveSuggestions = useMemo(() => {
+    const term = normalizeSearch(searchTerm.trim());
+    if (!term) return [];
+
+    return products
+      .map((product) => {
+        const productVariations = variations.filter((variation) => variation.product_id === product.id);
+        const searchable = normalizeSearch([
+          product.name,
+          product.product_type,
+          ...productVariations.map((variation) => variation.variety),
+        ].filter(Boolean).join(" "));
+
+        return {
+          ...product,
+          variations: productVariations,
+          matches: searchable.includes(term),
+        };
+      })
+      .filter((product) => product.matches);
+  }, [products, searchTerm, variations]);
+
+  const goToSearch = () => {
+    const term = searchTerm.trim();
+    navigate(`/explorar${term ? `?buscar=${encodeURIComponent(term)}` : ""}`);
+  };
 
   return (
     <section className="relative overflow-hidden bg-gradient-natural">
@@ -40,7 +110,7 @@ const HeroSection = () => {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                navigate(`/explorar${searchTerm ? `?buscar=${encodeURIComponent(searchTerm)}` : ''}`);
+                goToSearch();
               }}
               className="relative max-w-lg mx-auto lg:mx-0 mb-8 animate-fade-up"
               style={{ animationDelay: "0.3s" }}
@@ -60,6 +130,61 @@ const HeroSection = () => {
               >
                 {t('home.search_button')}
               </Button>
+              {searchTerm.trim() && (
+                <div className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-30 max-h-80 overflow-y-auto rounded-xl border-2 border-primary/20 bg-white text-left shadow-elevated">
+                  {liveSuggestions.length > 0 ? (
+                    <>
+                      {liveSuggestions.map((product) => {
+                        const emoji = product.product_type ? PRODUCT_CATEGORY_EMOJIS[product.product_type] : null;
+                        const varieties = product.variations
+                          .map((variation) => variation.variety)
+                          .filter(Boolean)
+                          .slice(0, 2)
+                          .join(", ");
+
+                        return (
+                          <Link
+                            key={product.id}
+                            to={`/producto/${product.id}`}
+                            className="flex items-center gap-3 border-b border-border/60 px-4 py-3 transition-colors last:border-b-0 hover:bg-primary/5"
+                          >
+                            <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg bg-primary/10">
+                              {product.photo_url ? (
+                                <img src={product.photo_url} alt="" className="h-full w-full object-cover" />
+                              ) : (
+                                <div className="flex h-full w-full items-center justify-center text-lg">
+                                  {emoji || <Leaf className="h-4 w-4 text-primary/60" />}
+                                </div>
+                              )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="truncate text-sm font-semibold text-foreground">{product.name}</p>
+                              <p className="truncate text-xs text-muted-foreground">
+                                {[product.product_type, varieties].filter(Boolean).join(" · ")}
+                              </p>
+                            </div>
+                          </Link>
+                        );
+                      })}
+                      <button
+                        type="button"
+                        onClick={goToSearch}
+                        className="w-full px-4 py-3 text-left text-sm font-semibold text-primary transition-colors hover:bg-primary/5"
+                      >
+                        Ver todos los resultados de "{searchTerm.trim()}"
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={goToSearch}
+                      className="w-full px-4 py-3 text-left text-sm text-muted-foreground transition-colors hover:bg-primary/5"
+                    >
+                      No hay coincidencias directas. Buscar "{searchTerm.trim()}" en el listín
+                    </button>
+                  )}
+                </div>
+              )}
             </form>
 
             {/* Certification quick filters */}
