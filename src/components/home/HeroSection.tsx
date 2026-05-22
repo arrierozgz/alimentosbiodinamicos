@@ -3,10 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowRight, Users, Leaf, MapPin, User, Search } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
+import { Leaf, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PRODUCT_CATEGORY_EMOJIS } from "@/lib/catalogo";
+import ProducerMapPreview from "@/components/map/ProducerMapPreview";
 
 interface ProductSuggestion {
   id: string;
@@ -27,17 +27,9 @@ const normalizeSearch = (value: string) =>
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "");
 
-const fallbackVisualProducts: ProductSuggestion[] = [
-  { id: "fallback-aceite", name: "Aceite biodinámico", product_type: "Aceite", photo_url: null },
-  { id: "fallback-hortaliza", name: "Hortalizas de temporada", product_type: "Hortaliza", photo_url: null },
-  { id: "fallback-fruta", name: "Fruta consciente", product_type: "Fruta", photo_url: null },
-  { id: "fallback-cereal", name: "Cereales y pan", product_type: "Cereal", photo_url: null },
-];
-
 const HeroSection = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [products, setProducts] = useState<ProductSuggestion[]>([]);
   const [variations, setVariations] = useState<ProductVariationSuggestion[]>([]);
@@ -86,11 +78,6 @@ const HeroSection = () => {
   }, [products, searchTerm, variations]);
 
   const visibleSuggestions = liveSuggestions.slice(0, 5);
-  const featuredProducts = useMemo(() => {
-    const withPhotos = products.filter((product) => product.photo_url).slice(0, 4);
-    return withPhotos.length ? withPhotos : products.slice(0, 4);
-  }, [products]);
-  const visualProducts = featuredProducts.length ? featuredProducts : fallbackVisualProducts;
 
   const goToSearch = () => {
     const term = searchTerm.trim();
@@ -104,8 +91,8 @@ const HeroSection = () => {
         <div className="absolute top-1/2 -left-24 w-72 h-72 rounded-full bg-accent/5 blur-3xl" />
       </div>
 
-      <div className="container relative py-16 md:py-24 lg:py-32">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+      <div className="container relative py-12 md:py-16 lg:py-20">
+        <div className="grid gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:items-center">
           <div className="min-w-0 text-center lg:text-left">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6 animate-fade-up">
               <Leaf className="h-4 w-4" />
@@ -202,152 +189,10 @@ const HeroSection = () => {
                 </div>
               )}
             </div>
-
-            {!hasSearch && (
-              <div className="lg:hidden -mx-2 mb-7 overflow-x-auto pb-2 animate-fade-up" style={{ animationDelay: "0.34s" }}>
-                <div className="flex gap-3 px-2">
-                  {visualProducts.slice(0, 3).map((product) => {
-                    const emoji = product.product_type ? PRODUCT_CATEGORY_EMOJIS[product.product_type] : null;
-                    return (
-                      <div key={product.id} className="relative h-28 w-36 flex-shrink-0 overflow-hidden rounded-xl bg-primary/10 shadow-card">
-                        {product.photo_url ? (
-                          <img src={product.photo_url} alt={product.name} className="h-full w-full object-cover" />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center bg-gradient-earth text-3xl text-primary-foreground">
-                            {emoji || <Leaf className="h-8 w-8" />}
-                          </div>
-                        )}
-                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/65 to-transparent p-2 pt-8">
-                          <p className="truncate text-xs font-semibold text-white">{product.name}</p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {!hasSearch && (
-              <>
-                {/* Certification quick filters */}
-                <div className="flex flex-wrap gap-3 justify-center lg:justify-start mb-8 animate-fade-up" style={{ animationDelay: "0.35s" }}>
-                  <span className="text-sm text-muted-foreground self-center mr-1">{t('home.filter_by')}:</span>
-                  <Link to="/explorar?cert=biodinamico">
-                    <span className="px-4 py-2 rounded-full text-sm font-bold bg-amber-600 hover:bg-amber-700 text-white cursor-pointer transition-all hover:scale-105 shadow-sm">
-                      BIODINÁMICO
-                    </span>
-                  </Link>
-                  <Link to="/explorar?cert=demeter">
-                    <span className="px-4 py-2 rounded-full text-sm font-semibold bg-green-700 hover:bg-green-800 text-white cursor-pointer transition-all hover:scale-105 shadow-sm">
-                      demeter
-                    </span>
-                  </Link>
-                  <Link to="/explorar?cert=ecologico">
-                    <span className="px-4 py-2 rounded-full text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer transition-all hover:scale-105 shadow-sm">
-                      ecológico
-                    </span>
-                  </Link>
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-fade-up" style={{ animationDelay: "0.4s" }}>
-                  {!user && (
-                    <Link to="/auth">
-                      <Button variant="earth" size="xl" className="w-full sm:w-auto group text-lg h-16">
-                        <User className="h-5 w-5" />
-                        {t('home.hero_cta_access')}
-                      </Button>
-                    </Link>
-                  )}
-                  <Link to="/explorar">
-                    <Button variant="outline" size="xl" className="w-full sm:w-auto group text-lg h-16">
-                      {t('home.hero_cta_explore')}
-                      <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-                    </Button>
-                  </Link>
-                </div>
-              </>
-            )}
           </div>
 
-          <div className="relative hidden lg:block animate-fade-up" style={{ animationDelay: "0.4s" }}>
-            <div className="relative max-w-lg mx-auto">
-              <div className="grid grid-cols-2 gap-4 rounded-3xl bg-white/60 p-4 shadow-elevated backdrop-blur">
-                {visualProducts.map((product, index) => {
-                  const emoji = product.product_type ? PRODUCT_CATEGORY_EMOJIS[product.product_type] : null;
-                  const tileClassName = `group relative h-44 overflow-hidden rounded-2xl bg-primary/10 shadow-card transition-transform hover:-translate-y-1 ${
-                    index % 2 === 1 ? "translate-y-8" : ""
-                  }`;
-                  const tileContent = (
-                    <>
-                      {product.photo_url ? (
-                        <img
-                          src={product.photo_url}
-                          alt={product.name}
-                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center bg-gradient-earth text-4xl text-primary-foreground">
-                          {emoji || <Leaf className="h-10 w-10" />}
-                        </div>
-                      )}
-                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/65 to-transparent p-3 pt-10">
-                        <p className="truncate text-sm font-semibold text-white">{product.name}</p>
-                      </div>
-                    </>
-                  );
-
-                  return product.id.startsWith("fallback-") ? (
-                    <div key={product.id} className={tileClassName}>
-                      {tileContent}
-                    </div>
-                  ) : (
-                    <Link
-                      key={product.id}
-                      to={`/producto/${product.id}`}
-                      className={tileClassName}
-                    >
-                      {tileContent}
-                    </Link>
-                  );
-                })}
-              </div>
-              
-              <div className="absolute -top-4 right-4 bg-card rounded-2xl p-4 shadow-card animate-float">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Users className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-foreground">{t('home.card_community')}</p>
-                    <p className="text-sm text-muted-foreground">{t('home.card_growing')}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="absolute -bottom-4 left-6 bg-card rounded-2xl p-4 shadow-card animate-float-delayed">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
-                    <MapPin className="h-5 w-5 text-accent" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-foreground">{t('home.card_nearby')}</p>
-                    <p className="text-sm text-muted-foreground">{t('home.card_km0')}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="absolute right-0 top-1/2 bg-card rounded-2xl p-4 shadow-card animate-float" style={{ animationDelay: "1s" }}>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-leaf/20 flex items-center justify-center">
-                    <Leaf className="h-5 w-5 text-leaf" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-foreground">{t('home.card_biodynamic')}</p>
-                    <p className="text-sm text-muted-foreground">{t('home.card_certified')}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div className="min-w-0 animate-fade-up" style={{ animationDelay: "0.4s" }}>
+            <ProducerMapPreview compact scrollWheelZoom={false} />
           </div>
         </div>
       </div>
